@@ -3,1099 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D SYSTEM OVERLOAD: EXPANDED EDITION</title>
+    <title>Rhythm Heart Interaction</title>
     <style>
-        body, html {
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
             margin: 0;
-            padding: 0;
             overflow: hidden;
-            width: 100%;
-            height: 100%;
-            background-color: #000;
-            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        /* Heart Icon with continuous idle beat */
+        .heart {
+            font-size: 100px;
+            color: #ff3e6c;
+            display: inline-block;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+            animation: idleBeat 1s infinite alternate;
+        }
+
+        /* Active shake effect triggered by the beat/spacebar */
+        .heart.shake {
+            animation: beatShake 0.15s ease-in-out;
+        }
+
+        /* Spacebar UI styling */
+        .spacebar-icon {
+            margin-top: 30px;
+            display: inline-block;
+            padding: 10px 40px;
+            border: 3px solid #ffffff;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 0 #bcbcbc;
+            transition: all 0.05s ease;
             user-select: none;
         }
 
-        #canvas-container {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 1;
+        .spacebar-icon.pressed {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 #bcbcbc;
+            background: rgba(255, 255, 255, 0.3);
         }
 
-        /* --- UI Menu Panels --- */
-        .menu-panel {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #fff;
-            text-align: center;
-            background: rgba(5, 5, 5, 0.95);
-            padding: 30px;
-            border: 2px solid #33ff33;
-            z-index: 20;
-            box-shadow: 0 0 30px rgba(0,255,0,0.3);
-            width: 480px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-sizing: border-box;
-        }
-
-        h2 {
-            margin-top: 0;
-            color: #33ff33;
-            letter-spacing: 2px;
-            text-shadow: 0 0 8px rgba(51, 255, 51, 0.4);
-        }
-
-        .menu-btn {
-            display: block;
-            width: 100%;
-            background: transparent;
-            border: 1px solid #33ff33;
-            color: #33ff33;
-            font-family: inherit;
-            font-size: 16px;
-            padding: 12px;
-            margin: 12px 0;
-            cursor: pointer;
-            font-weight: bold;
-            text-transform: uppercase;
-            box-shadow: 0 0 5px rgba(0, 255, 0, 0.1);
-            transition: all 0.2s ease;
-        }
-
-        .menu-btn:hover {
-            background: #33ff33;
-            color: #000;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
-        }
-
-        .setting-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 14px 0;
-            font-size: 13px;
-        }
-
-        select, input[type="checkbox"] {
-            background: #111;
-            border: 1px solid #33ff33;
-            color: #33ff33;
-            font-family: inherit;
-            padding: 6px;
-            outline: none;
-            cursor: pointer;
-        }
-
-        /* --- Credits Frame Matrix --- */
-        #credits-frame {
-            display: none;
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #000;
-            z-index: 25;
-            overflow: hidden;
-            color: #33ff33;
-            justify-content: center;
-            align-items: center;
-        }
-
-        #credits-scroller {
-            position: absolute;
-            width: 100%;
-            text-align: center;
-            top: 100%;
-            line-height: 2.2;
-            font-size: 16px;
-        }
-
-        .special-thanks {
-            font-size: 26px;
-            color: #ff33aa;
-            text-shadow: 0 0 10px rgba(255,51,170,0.6);
-            margin-top: 50px;
-            font-weight: bold;
-        }
-
-        /* --- HUD --- */
-        #hud-container {
-            display: none; 
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 420px;
-            background: rgba(10, 10, 10, 0.85);
-            border: 2px solid #33ff33;
-            border-radius: 4px;
-            padding: 12px;
-            z-index: 10;
-            text-align: center;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
-            pointer-events: none;
-        }
-
-        #countdown-timer {
-            font-size: 22px;
-            font-weight: bold;
-            color: #ff3333;
-            text-shadow: 0 0 8px rgba(255, 51, 51, 0.5);
-            margin-bottom: 6px;
-            letter-spacing: 2px;
-        }
-
-        #power-bar-container {
-            width: 100%;
-            background-color: #222;
-            height: 16px;
-            margin-top: 6px;
-            border: 1px solid #33ff33;
-        }
-
-        #power-bar {
-            width: 100%;
-            height: 100%;
-            background-color: #33ff33;
-            transition: width 0.05s linear;
-        }
-
-        #status-indicators {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 8px;
-            font-size: 11px;
-            color: #888;
-        }
-
-        .active-status {
-            color: #ff3333 !important;
-            font-weight: bold;
-        }
-        
-        .gen-status {
-            color: #33ffff !important;
-            font-weight: bold;
-        }
-
-        #game-over-screen {
-            display: none;
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #0d0202;
-            color: #ff3333;
-            z-index: 30;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            font-size: 24px;
-        }
-
-        .diagnostic-box {
-            background: #1a0505;
-            border: 1px dashed #ff3333;
-            padding: 15px;
+        .instructions {
             margin-top: 20px;
-            font-size: 13px;
-            color: #ffaa00;
-            text-align: left;
-            width: 500px;
-            max-width: 90%;
-            line-height: 1.4;
-        }
-
-        #blink-vignette {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #000;
-            z-index: 15;
-            pointer-events: none;
-            opacity: 1;
-            transition: opacity 1.5s ease-in-out;
-        }
-
-        #jumpscare-overlay {
-            display: none;
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #ff0000;
-            z-index: 28;
-            pointer-events: none;
-        }
-
-        #hospital-hud {
-            display: none;
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #ffbbee;
-            background: rgba(30, 15, 25, 0.85);
-            border: 1px solid #ff66cc;
-            padding: 10px 20px;
+            color: #888;
             font-size: 14px;
-            z-index: 10;
-            pointer-events: none;
-            text-align: center;
-            border-radius: 3px;
-            box-shadow: 0 0 10px rgba(255,102,204,0.3);
+        }
+
+        /* Animations */
+        @keyframes idleBeat {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.05); }
+        }
+
+        @keyframes beatShake {
+            0% { transform: scale(1.3) rotate(0deg); }
+            25% { transform: scale(1.2) rotate(-10deg); }
+            75% { transform: scale(1.2) rotate(10deg); }
+            100% { transform: scale(1) rotate(0deg); }
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
-    <div id="blink-vignette"></div>
-    <div id="jumpscare-overlay"></div>
-
-    <!-- MAIN MENU LAYER -->
-    <div id="main-menu" class="menu-panel">
-        <h2>SYSTEM OVERLOAD</h2>
-        <p style="font-size: 11px; color: #888; margin-bottom: 20px;">CRANK PROTOCOL ENGAGED</p>
-        <button class="menu-btn" id="btn-play-game">Start Simulation</button>
-        <button class="menu-btn" id="btn-open-settings">Configuration</button>
-        <button class="menu-btn" id="btn-open-credits">Credits</button>
-    </div>
-
-    <!-- SETTINGS FRAME -->
-    <div id="settings-menu" class="menu-panel" style="display: none;">
-        <h2>CONFIGURATION</h2>
+    <div class="container">
+        <!-- Heart Icon (Using a text emoji for simplicity, can be replaced with an SVG) -->
+        <div id="heart" class="heart">❤️</div>
         
-        <div class="setting-row">
-            <label>AI THREAT FREQUENCY:</label>
-            <select id="setting-difficulty">
-                <option value="easy">EASY ARCHITECTURE</option>
-                <option value="normal" selected>NORMAL ENGINE</option>
-                <option value="hard">HARDCORE MATRIX</option>
-            </select>
-        </div>
-
-        <div class="setting-row">
-            <label>FLASHLIGHT MODE (DARK):</label>
-            <input type="checkbox" id="setting-flashlight">
-        </div>
-
-        <button class="menu-btn" id="btn-close-settings" style="margin-top: 25px;">Save Settings</button>
+        <br>
+        
+        <!-- Spacebar Indicator -->
+        <div id="spacebar" class="spacebar-icon">SPACE</div>
+        
+        <p class="instructions">Press Spacebar 5 times to complete the rhythm!</p>
     </div>
-
-    <!-- CREDITS SCROLLING FRAME -->
-    <div id="credits-frame">
-        <div id="credits-scroller">
-            <p><strong>3D SYSTEM OVERLOAD</strong></p>
-            <p>CORE ARCHITECTURE DESIGN</p>
-            <p>PROCEDURAL GENERATOR MATRICES</p>
-            <p>3D GRAPHICS ENGINE USING THREE.JS</p>
-            <p>SYNTHETIC AUDIO WAVE PROTOTYPER</p>
-            <p>DOLL NURSERY DESIGN LABS</p>
-            <br>
-            <p>DIAGNOSTIC SIMULATOR LOGS</p>
-            <p>POINTER INTERACTION PATCH V2.6</p>
-            <br><br>
-            <div class="special-thanks">SPECIAL THANKS TO YOU</div>
-        </div>
-    </div>
-
-    <!-- GAME OVER OVERLAY -->
-    <div id="game-over-screen">
-        <h1>CONNECTION TERMINATED</h1>
-        <p id="death-reason" style="font-size: 16px; margin-top: 10px; color: #bbbbbb; text-align: center; max-width: 600px;"></p>
-        <div class="diagnostic-box" id="synthesis-diagnostic"></div>
-        <button class="menu-btn" id="btn-restart" style="width: 250px;">Restart Simulation</button>
-    </div>
-
-    <!-- IN-GAME HUD -->
-    <div id="hud-container">
-        <div id="countdown-timer">05:00</div>
-        <div style="color: #33ff33; font-size: 12px; font-weight: bold;" id="power-label">AUXILIARY POWER: 100%</div>
-        <div id="power-bar-container">
-            <div id="power-bar"></div>
-        </div>
-        <div id="status-indicators">
-            <span id="status-left">LEFT: OPEN</span>
-            <span id="status-generator">GEN: IDLE</span>
-            <span id="status-right">RIGHT: OPEN</span>
-        </div>
-    </div>
-
-    <div id="hospital-hud">Something is wrong. Examine the console in the center of the doll nursery.</div>
-
-    <div id="canvas-container"></div>
 
     <script>
-        // --- 3D Environment Core ---
-        let scene, camera, renderer;
-        let leftDoor, rightDoor;
-        let monsterRoot, monsterEyeLeft, monsterEyeRight;
-        let roomLight, globalAmbientLight, flashlightLight;
-        let dollRoomGroup, controlStationGroup;
-        let interactiveCoreAsset; 
-        let generatorWheel; 
+        const heart = document.getElementById('heart');
+        const spacebar = document.getElementById('spacebar');
         
-        // --- Texture Assets ---
-        let metalWallTexture, dollWallTexture;
+        // Target sound URL provided
+        const completionSound = new Audio('https://cdn.pixabay.com/download/audio/2026/01/08/audio_36abbc084f.mp3?filename=dragon-studio-angelical-synth-pad-463203.mp3');
 
-        // --- Game Flow State Machine ---
-        let gameActive = false;
-        let cutsceneActive = false;
-        let hospitalModeActive = false; 
-        let isPaused = true; 
-        let creditsActive = false;
-        let creditsY = 0;
-        let jumpscareActive = false;
-        let jumpscareTimer = 0;
-        
-        let cutsceneElapsedTime = 0; 
-        const targetCamPos = new THREE.Vector3(0, 1.6, 0);
+        let pressCount = 0;
+        const targetPresses = 5; // Change this to adjust when the game is "done"
+        let isDone = false;
 
-        // --- Configuration Engine Variables ---
-        let timeRemainingSeconds = 300; 
-        let timerIntervalId = null;
-        let selectedDifficulty = "normal";
-        let flashlightModeEnabled = false;
+        function triggerBeat() {
+            if (isDone) return;
 
-        // ==========================================
-        // HARDCODED AUDIO LINKS (LOCK SCRIPT HERE)
-        // ==========================================
-        let customUrls = { 
-            jumpscare: "https://cdn.pixabay.com/download/audio/2026/03/30/audio_9982299230.mp3?filename=sound_effects75-main-jumpscare-sound-511350.mp3", 
-            door: "https://cdn.pixabay.com/download/audio/2024/04/01/audio_8318f729e2.mp3?filename=universfield-opening-metal-door-199581.mp3", 
-            crank: "YOUR_CRANK_AUDIO_URL_HERE" 
-        };
-        let audioObjects = { jumpscare: null, door: null, crank: null };
-
-        // --- Game System Mechanics ---
-        let leftDoorClosed = false;
-        let rightDoorClosed = false;
-        let spacePressed = false;
-        let powerLevel = 100.0;
-        
-        let monsterActive = false;
-        let monsterSide = ""; 
-        let monsterProgress = 0; 
-        let currentMonsterType = "stalker"; 
-        let currentBaseSpeed = 0.007;
-        let activeSpawnTimeout = null;
-        let pauseTimeRemaining = 0; 
-
-        // Looking Matrix
-        let yaw = 0, pitch = 0;
-        const maxYaw = Math.PI / 2.3; 
-        const maxPitch = Math.PI / 3.5;
-
-        // Keyboard Elements
-        const keys = { w: false, a: false, s: false, d: false };
-        let playerVelocity = new THREE.Vector3();
-        const moveSpeed = 0.05;
-
-        // Audio Anchor
-        let audioCtx = null;
-
-        function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx && audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+            // Trigger visual button press
+            spacebar.classList.add('pressed');
             
-            if (customUrls.jumpscare && !audioObjects.jumpscare) { audioObjects.jumpscare = new Audio(customUrls.jumpscare); audioObjects.jumpscare.volume = 0.9; }
-            if (customUrls.door && !audioObjects.door) { audioObjects.door = new Audio(customUrls.door); audioObjects.door.volume = 0.5; }
-            if (customUrls.crank && !audioObjects.crank) { audioObjects.crank = new Audio(customUrls.crank); audioObjects.crank.volume = 0.3; audioObjects.crank.loop = true; }
-        }
+            // Trigger heart shake animation
+            heart.classList.remove('shake');
+            void heart.offsetWidth; // Trigger reflow to restart animation
+            heart.classList.add('shake');
 
-        function triggerCustomPlay(key) {
-            if (audioObjects[key] && customUrls[key] !== "YOUR_" + key.toUpperCase() + "_AUDIO_URL_HERE") {
-                audioObjects[key].currentTime = 0;
-                audioObjects[key].play().catch(e => console.log("Custom audio play blocked or failed: ", e));
-                return true;
+            pressCount++;
+
+            // Check if user is finished
+            if (pressCount >= targetPresses) {
+                isDone = true;
+                playCompletionAudio();
             }
-            return false;
         }
 
-        function playTone(freq, duration, type = 'sine', vol = 0.1) {
-            if(!audioCtx) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = type;
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + duration);
+        function releaseBeat() {
+            spacebar.classList.remove('pressed');
         }
 
-        function playFootstep(freq) {
-            if(!audioCtx || isPaused) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(25, audioCtx.currentTime + 0.1);
-            gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.12);
+        function playCompletionAudio() {
+            completionSound.play()
+                .then(() => {
+                    alert('Finished! Playing completion sound.');
+                })
+                .catch(error => {
+                    console.log("Audio playback failed due to browser policies. Click the screen first.", error);
+                });
         }
 
-        // --- Procedural Texture Generators ---
-        function generateTextures() {
-            const canvas1 = document.createElement('canvas');
-            canvas1.width = 512; canvas1.height = 512;
-            const ctx1 = canvas1.getContext('2d');
-            ctx1.fillStyle = '#2b2b30'; ctx1.fillRect(0, 0, 512, 512);
-            ctx1.strokeStyle = '#1b1b1f'; ctx1.lineWidth = 4;
-            for(let i = 0; i <= 512; i += 128) {
-                ctx1.beginPath(); ctx1.moveTo(i, 0); ctx1.lineTo(i, 512); ctx1.stroke();
-                ctx1.beginPath(); ctx1.moveTo(0, i); ctx1.lineTo(512, i); ctx1.stroke();
-            }
-            ctx1.fillStyle = '#111113';
-            for(let x = 15; x < 512; x += 128) {
-                for(let y = 15; y < 512; y += 128) {
-                    ctx1.fillRect(x, y, 6, 6); ctx1.fillRect(x + 98, y + 98, 6, 6);
-                }
-            }
-            metalWallTexture = new THREE.CanvasTexture(canvas1);
-            metalWallTexture.wrapS = THREE.RepeatWrapping; metalWallTexture.wrapT = THREE.RepeatWrapping;
-
-            const canvas2 = document.createElement('canvas');
-            canvas2.width = 256; canvas2.height = 256;
-            const ctx2 = canvas2.getContext('2d');
-            ctx2.fillStyle = '#eae0d5'; ctx2.fillRect(0, 0, 256, 256);
-            ctx2.fillStyle = '#c9ada7';
-            for (let x = 0; x < 256; x += 64) {
-                for (let y = 0; y < 256; y += 64) {
-                    if ((x + y) % 128 === 0) {
-                        ctx2.fillRect(x, y, 32, 32); ctx2.fillRect(x + 32, y + 32, 32, 32);
-                    }
-                }
-            }
-            ctx2.fillStyle = 'rgba(90, 70, 60, 0.15)';
-            ctx2.beginPath(); ctx2.arc(40, 180, 25, 0, Math.PI*2); ctx2.fill();
-            dollWallTexture = new THREE.CanvasTexture(canvas2);
-            dollWallTexture.wrapS = THREE.RepeatWrapping; dollWallTexture.wrapT = THREE.RepeatWrapping;
-        }
-
-        function createDollMesh(dressColor) {
-            const dollGroup = new THREE.Group();
-            const headGeo = new THREE.SphereGeometry(0.16, 8, 8);
-            const headMat = new THREE.MeshStandardMaterial({ color: 0xf5ebe0, roughness: 0.1 });
-            const head = new THREE.Mesh(headGeo, headMat); head.position.y = 0.58; dollGroup.add(head);
-
-            const eyeGeo = new THREE.SphereGeometry(0.025, 4, 4);
-            const eyeMat = new THREE.MeshBasicMaterial({ color: 0x0a0505 });
-            const leftEye = new THREE.Mesh(eyeGeo, eyeMat); leftEye.position.set(0.05, 0.6, 0.14);
-            const rightEye = new THREE.Mesh(eyeGeo, eyeMat); rightEye.position.set(-0.05, 0.6, 0.14);
-            dollGroup.add(leftEye, rightEye);
-
-            const bodyMat = new THREE.MeshStandardMaterial({ color: dressColor, roughness: 0.8 });
-            const body = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.18, 0.4, 8), bodyMat); body.position.y = 0.3; dollGroup.add(body);
-
-            const limbGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.28, 4);
-            const leftArm = new THREE.Mesh(limbGeo, headMat); leftArm.position.set(0.1, 0.35, 0); leftArm.rotation.z = -0.4;
-            const rightArm = new THREE.Mesh(limbGeo, headMat); rightArm.position.set(-0.1, 0.35, 0); rightArm.rotation.z = 0.4;
-            dollGroup.add(leftArm, rightArm);
-            return dollGroup;
-        }
-
-        // --- Create World Architecture ---
-        function init3D() {
-            const container = document.getElementById('canvas-container');
-            generateTextures();
-
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x050508);
-            scene.fog = new THREE.FogExp2(0x050508, 0.12);
-
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 0.5, 1.8); 
-            camera.rotation.set(-Math.PI / 6, 0, 0);
-
-            renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            container.appendChild(renderer.domElement);
-
-            controlStationGroup = new THREE.Group();
-            scene.add(controlStationGroup);
-
-            dollRoomGroup = new THREE.Group();
-            dollRoomGroup.position.set(0, -100, 0); 
-            scene.add(dollRoomGroup);
-
-            buildControlStation();
-            buildDollRoom();
-
-            roomLight = new THREE.PointLight(0x55ff55, 1.8, 12); 
-            roomLight.position.set(0, 2.8, 0); 
-            scene.add(roomLight);
-
-            globalAmbientLight = new THREE.AmbientLight(0x222533); 
-            scene.add(globalAmbientLight);
-
-            flashlightLight = new THREE.SpotLight(0xffffff, 0.0, 25, Math.PI / 5, 0.4, 1);
-            scene.add(flashlightLight);
-            scene.add(flashlightLight.target); 
-
-            window.addEventListener('resize', onWindowResize, false);
-        }
-
-        function buildControlStation() {
-            const texturedWallMat = new THREE.MeshStandardMaterial({ map: metalWallTexture, roughness: 0.5 });
-            metalWallTexture.repeat.set(2, 1.5);
-            const floorMaterial = new THREE.MeshStandardMaterial({ color: 0x141419, roughness: 0.8 }); 
-
-            const floor = new THREE.Mesh(new THREE.PlaneGeometry(6, 6), floorMaterial);
-            floor.rotation.x = -Math.PI / 2; controlStationGroup.add(floor);
-
-            const backWall = new THREE.Mesh(new THREE.PlaneGeometry(6, 4), texturedWallMat);
-            backWall.position.set(0, 2, 3); backWall.rotation.y = Math.PI; controlStationGroup.add(backWall);
-
-            const frontWall = new THREE.Mesh(new THREE.PlaneGeometry(6, 4), texturedWallMat);
-            frontWall.position.set(0, 2, -3); controlStationGroup.add(frontWall);
-
-            const bedFrame = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.3, 2.0), new THREE.MeshStandardMaterial({ color: 0x2d221c, roughness: 0.9 }));
-            bedFrame.position.set(0, 0.15, 1.8); controlStationGroup.add(bedFrame);
-
-            const generatorGroup = new THREE.Group();
-            generatorGroup.position.set(0, 1.2, -2.85);
-
-            const genHousing = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.0, 0.3), new THREE.MeshStandardMaterial({ color: 0x444d47, metalness: 0.7, roughness: 0.4 }));
-            generatorGroup.add(genHousing);
-
-            generatorWheel = new THREE.Group();
-            generatorWheel.position.z = 0.16;
-            
-            const wheelRim = new THREE.Mesh(new THREE.TorusGeometry(0.26, 0.03, 6, 16), new THREE.MeshStandardMaterial({ color: 0x9e2a2b, roughness: 0.5 }));
-            generatorWheel.add(wheelRim);
-
-            const spokeX = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.03, 0.03), new THREE.MeshStandardMaterial({ color: 0x222 }));
-            const spokeY = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.5, 0.03), new THREE.MeshStandardMaterial({ color: 0x222 }));
-            generatorWheel.add(spokeX, spokeY);
-
-            const handlePeg = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.1), new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.9 }));
-            handlePeg.position.set(0.18, 0, 0.05);
-            handlePeg.rotation.x = Math.PI / 2;
-            generatorWheel.add(handlePeg);
-
-            generatorGroup.add(generatorWheel);
-            controlStationGroup.add(generatorGroup);
-
-            const sideFloorGeo = new THREE.PlaneGeometry(4, 24);
-            const leftFloor = new THREE.Mesh(sideFloorGeo, floorMaterial); leftFloor.position.set(-6, 0, 0); leftFloor.rotation.set(-Math.PI / 2, 0, Math.PI / 2); controlStationGroup.add(leftFloor);
-            const rightFloor = new THREE.Mesh(sideFloorGeo, floorMaterial); rightFloor.position.set(6, 0, 0); rightFloor.rotation.set(-Math.PI / 2, 0, Math.PI / 2); controlStationGroup.add(rightFloor);
-
-            const doorMat = new THREE.MeshStandardMaterial({ color: 0x3a3f47, metalness: 0.5, roughness: 0.4 });
-            leftDoor = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3.2, 3.2), doorMat); leftDoor.position.set(-3, 1.6, 0); controlStationGroup.add(leftDoor);
-            rightDoor = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3.2, 3.2), doorMat); rightDoor.position.set(3, 1.6, 0); controlStationGroup.add(rightDoor);
-
-            monsterRoot = new THREE.Group();
-            monsterRoot.add(new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.7, 0.4), new THREE.MeshBasicMaterial({ color: 0x050505 })));
-            const eyeGeo = new THREE.SphereGeometry(0.11, 6, 6);
-            monsterEyeLeft = new THREE.Mesh(eyeGeo, new THREE.MeshBasicMaterial()); monsterEyeLeft.position.set(0.15, 0.2, 0.15); monsterRoot.add(monsterEyeLeft);
-            monsterEyeRight = new THREE.Mesh(eyeGeo, new THREE.MeshBasicMaterial()); monsterEyeRight.position.set(0.15, 0.2, -0.15); monsterRoot.add(monsterEyeRight);
-            monsterRoot.position.set(0, -10, 0); controlStationGroup.add(monsterRoot);
-        }
-
-        function buildDollRoom() {
-            const wallpaperMat = new THREE.MeshStandardMaterial({ map: dollWallTexture, roughness: 0.7 });
-            dollWallTexture.repeat.set(4, 2);
-            const floorMat = new THREE.MeshStandardMaterial({ color: 0x4a3b32, roughness: 0.5 }); 
-            const furnitureMat = new THREE.MeshStandardMaterial({ color: 0x2b1e17, roughness: 0.9 });
-
-            const roomSize = 12;
-            const floor = new THREE.Mesh(new THREE.PlaneGeometry(roomSize, roomSize), floorMat); floor.rotation.x = -Math.PI / 2; dollRoomGroup.add(floor);
-            const roof = new THREE.Mesh(new THREE.PlaneGeometry(roomSize, roomSize), new THREE.MeshStandardMaterial({color: 0xd9cbd5})); roof.rotation.x = Math.PI / 2; roof.position.y = 4.2; dollRoomGroup.add(roof);
-
-            const wallH = 4.2;
-            const backWall = new THREE.Mesh(new THREE.PlaneGeometry(roomSize, wallH), wallpaperMat); backWall.position.set(0, wallH/2, -roomSize/2); dollRoomGroup.add(backWall);
-            const frontWall = new THREE.Mesh(new THREE.PlaneGeometry(roomSize, wallH), wallpaperMat); frontWall.position.set(0, wallH/2, roomSize/2); frontWall.rotation.y = Math.PI; dollRoomGroup.add(frontWall);
-            const leftWall = new THREE.Mesh(new THREE.PlaneGeometry(roomSize, wallH), wallpaperMat); leftWall.position.set(-roomSize/2, wallH/2, 0); leftWall.rotation.y = Math.PI / 2; dollRoomGroup.add(leftWall);
-            const rightWall = new THREE.Mesh(new THREE.PlaneGeometry(roomSize, wallH), wallpaperMat); rightWall.position.set(roomSize/2, wallH/2, 0); rightWall.rotation.y = -Math.PI / 2; dollRoomGroup.add(rightWall);
-
-            interactiveCoreAsset = new THREE.Group(); interactiveCoreAsset.position.set(0, 0, -2.5);
-            let pedestalBase = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.9, 0.8), furnitureMat); pedestalBase.position.y = 0.45; interactiveCoreAsset.add(pedestalBase);
-            let deviceNode = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), new THREE.MeshStandardMaterial({color: 0xff33aa, emissive: 0x440022})); deviceNode.position.y = 1.05; interactiveCoreAsset.add(deviceNode);
-            let customSpookyLight = new THREE.PointLight(0xff66cc, 1.4, 8); customSpookyLight.position.set(0, 1.5, 0); interactiveCoreAsset.add(customSpookyLight);
-            dollRoomGroup.add(interactiveCoreAsset);
-
-            const dressColors = [0x5c677d, 0x9b2226, 0x005f73, 0x0a9396, 0xee9b00, 0xca6702];
-            let dollIndex = 0;
-            for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 3) {
-                let d = createDollMesh(dressColors[dollIndex % dressColors.length]);
-                let radius = 2.0; d.position.set(Math.sin(angle) * radius, 0, -2.5 + Math.cos(angle) * radius);
-                d.lookAt(0, 0, -2.5); dollRoomGroup.add(d); dollIndex++;
-            }
-            for (let side of [-4.5, 4.5]) {
-                let shelf = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.05, 4), furnitureMat); shelf.position.set(side, 1.2, 0); dollRoomGroup.add(shelf);
-                for (let sz = -1.5; sz <= 1.5; sz += 1.0) {
-                    let shelfDoll = createDollMesh(dressColors[dollIndex % dressColors.length]);
-                    shelfDoll.position.set(side + (side > 0 ? -0.1 : 0.1), 1.2, sz); shelfDoll.scale.set(0.8, 0.8, 0.8); shelfDoll.rotation.y = side > 0 ? -Math.PI/2 : Math.PI/2;
-                    dollRoomGroup.add(shelfDoll); dollIndex++;
-                }
-            }
-            let masterDoll = createDollMesh(0xffffff); masterDoll.position.set(0, 0, 1.5); masterDoll.scale.set(1.5, 1.5, 1.5); masterDoll.lookAt(0, 0, 0); dollRoomGroup.add(masterDoll);
-        }
-
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight);
-        }
-
-        // --- Menu Button Event Handlers ---
-        document.getElementById('btn-play-game').addEventListener('click', () => {
-            initAudio();
-            document.body.requestPointerLock();
-            document.getElementById('main-menu').style.display = 'none';
-            isPaused = false;
-            
-            if (flashlightModeEnabled) {
-                globalAmbientLight.intensity = 0.02;
-                roomLight.intensity = 0.0;
-                flashlightLight.intensity = 3.5;
-            } else {
-                globalAmbientLight.intensity = 1.0;
-                roomLight.intensity = 1.8;
-                flashlightLight.intensity = 0.0;
-            }
-
-            if (!gameActive && !cutsceneActive && cutsceneElapsedTime === 0) { startCutsceneSequence(); }
-        });
-
-        document.getElementById('btn-open-settings').addEventListener('click', () => {
-            document.getElementById('main-menu').style.display = 'none';
-            document.getElementById('settings-menu').style.display = 'block';
-        });
-
-        document.getElementById('btn-close-settings').addEventListener('click', () => {
-            selectedDifficulty = document.getElementById('setting-difficulty').value;
-            flashlightModeEnabled = document.getElementById('setting-flashlight').checked;
-
-            document.getElementById('settings-menu').style.display = 'none';
-            document.getElementById('main-menu').style.display = 'block';
-        });
-
-        document.getElementById('btn-open-credits').addEventListener('click', () => {
-            document.getElementById('main-menu').style.display = 'none';
-            const frame = document.getElementById('credits-frame');
-            const scroller = document.getElementById('credits-scroller');
-            frame.style.display = 'flex';
-            creditsActive = true;
-            creditsY = window.innerHeight; 
-            scroller.style.top = creditsY + 'px';
-        });
-
-        document.getElementById('credits-frame').addEventListener('click', () => {
-            creditsActive = false;
-            document.getElementById('credits-frame').style.display = 'none';
-            document.getElementById('main-menu').style.display = 'block';
-        });
-
-        document.pragma_lock = false;
-        document.addEventListener('pointerlockchange', () => {
-            if (document.pointerLockElement === document.body) {
-                if (jumpscareActive) return;
-                isPaused = false; 
-                if (!gameActive && !cutsceneActive && cutsceneElapsedTime === 0 && !hospitalModeActive) { startCutsceneSequence(); }
-                else if (gameActive && !hospitalModeActive) { spawnThreatCycle(pauseTimeRemaining > 0 ? pauseTimeRemaining : null); startCountdownProcessor(); }
-                else if (hospitalModeActive) { startCountdownProcessor(); }
-            } else {
-                spacePressed = false; 
-                if(audioObjects.crank) audioObjects.crank.pause();
-            }
-        });
-
-        function startCutsceneSequence() {
-            cutsceneActive = true; cutsceneElapsedTime = 0;
-            playTone(70, 2.5, 'sine', 0.2); document.getElementById('blink-vignette').style.opacity = 0.0;
-        }
-
-        function startCountdownProcessor() {
-            clearInterval(timerIntervalId);
-            timerIntervalId = setInterval(() => {
-                if (isPaused || jumpscareActive) return;
-                timeRemainingSeconds--;
-                let minutes = Math.floor(timeRemainingSeconds / 60); let seconds = timeRemainingSeconds % 60;
-                document.getElementById('countdown-timer').innerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                if (timeRemainingSeconds <= 0) { clearInterval(timerIntervalId); triggerHospitalTransition(); }
-            }, 1000);
-        }
-
-        function triggerHospitalTransition() {
-            gameActive = false; cutsceneActive = false; clearTimeout(activeSpawnTimeout);
-            if(audioObjects.crank) audioObjects.crank.pause();
-            document.getElementById('hud-container').style.display = 'none';
-            const vignette = document.getElementById('blink-vignette');
-            vignette.style.transition = "opacity 2.5s ease-in-out"; vignette.style.opacity = 1.0;
-            playTone(45, 3.0, 'sine', 0.4);
-
-            setTimeout(() => {
-                controlStationGroup.position.set(0, -100, 0); dollRoomGroup.position.set(0, 0, 0);
-                yaw = 0; pitch = 0;
-                camera.position.set(0, 0.5, 0); camera.rotation.set(-Math.PI / 10, 0, 0);
-                scene.background.setHex(0x1a1215); scene.fog.color.setHex(0x1a1215); scene.fog.density = 0.08;
-                
-                roomLight.color.setHex(0xffaaee); roomLight.intensity = 1.0; roomLight.position.set(0, 3.2, -2.5); globalAmbientLight.color.setHex(0x44333b);
-                flashlightLight.intensity = 0.0; 
-                
-                hospitalModeActive = true;
-
-                setTimeout(() => {
-                    vignette.style.opacity = 0.0;
-                    let standUpTimeline = 0;
-                    let standInterval = setInterval(() => {
-                        if (isPaused) return;
-                        standUpTimeline += 0.02;
-                        if (standUpTimeline >= 1.0) {
-                            clearInterval(standInterval); camera.position.y = 1.6; camera.rotation.set(0, 0, 0); document.getElementById('hospital-hud').style.display = 'block';
-                        } else {
-                            camera.position.y = THREE.MathUtils.lerp(0.5, 1.6, standUpTimeline); camera.rotation.x = THREE.MathUtils.lerp(-Math.PI / 10, 0, standUpTimeline);
-                        }
-                    }, 30);
-                }, 1500);
-            }, 2500);
-        }
-
-        // --- Core Movement & Interaction Listeners ---
-        document.addEventListener('keydown', (e) => {
-            if (isPaused || jumpscareActive) return;
-            if (hospitalModeActive) {
-                if (e.key.toLowerCase() === 'w') keys.w = true; if (e.key.toLowerCase() === 'a') keys.a = true; if (e.key.toLowerCase() === 's') keys.s = true; if (e.key.toLowerCase() === 'd') keys.d = true;
-            } else if (gameActive) {
-                if (e.code === 'Space') {
-                    if (!spacePressed) {
-                        spacePressed = true;
-                        document.getElementById('status-generator').innerText = "GEN: CHARGING";
-                        document.getElementById('status-generator').className = "gen-status";
-                        if(audioObjects.crank && customUrls.crank !== "YOUR_CRANK_AUDIO_URL_HERE") audioObjects.crank.play().catch(e => {});
-                    }
+        // Keyboard listeners
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault(); // Prevent page from scrolling down
+                if (!e.repeat) {
+                    triggerBeat();
                 }
             }
         });
 
-        document.addEventListener('keyup', (e) => {
-            if (hospitalModeActive) {
-                if (e.key.toLowerCase() === 'w') keys.w = false; if (e.key.toLowerCase() === 'a') keys.a = false; if (e.key.toLowerCase() === 's') keys.s = false; if (e.key.toLowerCase() === 'd') keys.d = false;
-            } else {
-                if (e.code === 'Space') {
-                    spacePressed = false;
-                    document.getElementById('status-generator').innerText = "GEN: IDLE";
-                    document.getElementById('status-generator').className = "";
-                    if(audioObjects.crank) audioObjects.crank.pause();
-                }
+        window.addEventListener('keyup', (e) => {
+            if (e.code === 'Space') {
+                releaseBeat();
             }
         });
 
-        document.addEventListener('mousedown', (e) => {
-            if (!gameActive || cutsceneActive || isPaused || hospitalModeActive || jumpscareActive) return;
-            if (e.button === 0) {
-                if (powerLevel > 0) {
-                    leftDoorClosed = !leftDoorClosed; document.getElementById('status-left').innerText = leftDoorClosed ? "LEFT: CLOSED" : "LEFT: OPEN";
-                    document.getElementById('status-left').className = leftDoorClosed ? "active-status" : ""; 
-                    if (!triggerCustomPlay('door')) { playTone(leftDoorClosed ? 180 : 280, 0.25, 'triangle'); }
-                }
-            } 
-            else if (e.button === 2) {
-                if (powerLevel > 0) {
-                    rightDoorClosed = !rightDoorClosed; document.getElementById('status-right').innerText = rightDoorClosed ? "RIGHT: CLOSED" : "RIGHT: OPEN";
-                    document.getElementById('status-right').className = rightDoorClosed ? "active-status" : ""; 
-                    if (!triggerCustomPlay('door')) { playTone(rightDoorClosed ? 180 : 280, 0.25, 'triangle'); }
-                }
-            }
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (isPaused || cutsceneActive || jumpscareActive) return;
-            
-            let deltaX = e.movementX * 0.0022;
-            let deltaY = e.movementY * 0.0022;
-            
-            if(document.pointerLockElement !== document.body) {
-                deltaX = (e.clientX / window.innerWidth - 0.5) * 0.05;
-                deltaY = (e.clientY / window.innerHeight - 0.5) * 0.05;
-            }
-
-            pitch -= deltaY; pitch = Math.max(-maxPitch, Math.min(maxPitch, pitch));
-            yaw -= deltaX;
-
-            if (!hospitalModeActive && gameActive) {
-                yaw = Math.max(-maxYaw, Math.min(maxYaw, yaw));
-            } else if (hospitalModeActive) {
-                camera.rotation.set(pitch, yaw, 0, 'YXZ');
-            }
-        });
-
-        document.addEventListener('contextmenu', e => e.preventDefault());
-
-        function spawnThreatCycle(customDelay = null) {
-            if (!gameActive || isPaused || hospitalModeActive || jumpscareActive) return;
-            
-            let frequencyMultiplier = 1.0;
-            if (selectedDifficulty === "easy") frequencyMultiplier = 1.6;
-            if (selectedDifficulty === "hard") frequencyMultiplier = 0.5;
-
-            let nextSpawnDelay = customDelay !== null ? customDelay : ((2000 + Math.random() * 3000) * frequencyMultiplier); 
-            pauseTimeRemaining = nextSpawnDelay;
-
-            activeSpawnTimeout = setTimeout(() => {
-                if (!gameActive || isPaused || hospitalModeActive || jumpscareActive) return;
-                if (!monsterActive) {
-                    monsterSide = Math.random() > 0.5 ? "left" : "right"; monsterProgress = 0; monsterActive = true;
-                    let roll = Math.random();
-                    if (roll < 0.4) { currentMonsterType = "twitcher"; currentBaseSpeed = 0.014; } 
-                    else if (roll < 0.7) { currentMonsterType = "lurker"; currentBaseSpeed = 0.0035; } 
-                    else { currentMonsterType = "stalker"; currentBaseSpeed = 0.007; }
-
-                    if (selectedDifficulty === "hard") currentBaseSpeed *= 1.35;
-                    if (selectedDifficulty === "easy") currentBaseSpeed *= 0.75;
-                }
-                pauseTimeRemaining = 0; spawnThreatCycle(); 
-            }, nextSpawnDelay);
-        }
-
-        // --- Core Simulation Loop Frame ---
-        function animate() {
-            requestAnimationFrame(animate);
-
-            if (jumpscareActive) {
-                jumpscareTimer -= 0.016;
-                
-                camera.position.x = (Math.random() - 0.5) * 0.3;
-                camera.position.y = 1.6 + (Math.random() - 0.5) * 0.3;
-                camera.position.z = (Math.random() - 0.5) * 0.3;
-                
-                if (Math.floor(Date.now() / 40) % 2 === 0) {
-                    document.getElementById('jumpscare-overlay').style.backgroundColor = '#ff0000';
-                } else {
-                    document.getElementById('jumpscare-overlay').style.backgroundColor = '#000000';
-                }
-
-                if (jumpscareTimer <= 0) {
-                    triggerGameOverTab();
-                }
-                renderer.render(scene, camera);
-                return; 
-            }
-
-            if (creditsActive) {
-                creditsY -= 1.3; 
-                const scroller = document.getElementById('credits-scroller');
-                scroller.style.top = creditsY + 'px';
-                
-                if (creditsY < -450) {
-                    creditsActive = false;
-                    document.getElementById('credits-frame').style.display = 'none';
-                    document.getElementById('main-menu').style.display = 'block';
-                }
-            }
-
-            if (cutsceneActive && !isPaused) {
-                cutsceneElapsedTime += 0.016; 
-                if (cutsceneElapsedTime <= 3.0) {
-                    camera.rotation.set(-Math.PI / 12, Math.sin(cutsceneElapsedTime * 2.5) * 0.5, 0); camera.position.set(0, 0.5, 1.8);
-                } 
-                else if (cutsceneElapsedTime > 3.0 && cutsceneElapsedTime <= 4.2) {
-                    let standProgress = Math.min(1.0, (cutsceneElapsedTime - 3.0) / 1.2);
-                    camera.position.lerpVectors(new THREE.Vector3(0, 0.5, 1.8), targetCamPos, standProgress);
-                    camera.rotation.set(THREE.MathUtils.lerp(-Math.PI / 12, 0, standProgress), THREE.MathUtils.lerp(camera.rotation.y, 0, standProgress), 0);
-                } 
-                else {
-                    cutsceneActive = false; gameActive = true; document.getElementById('hud-container').style.display = 'block';
-                    isPaused = false;
-                    startCountdownProcessor(); spawnThreatCycle();
-                }
-            }
-
-            if (hospitalModeActive && !isPaused) {
-                playerVelocity.set(0, 0, 0);
-                const forward = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
-                const side = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
-
-                if (keys.w) playerVelocity.add(forward); if (keys.s) playerVelocity.add(forward.clone().negate()); if (keys.d) playerVelocity.add(side); if (keys.a) playerVelocity.add(side.clone().negate());
-
-                if (playerVelocity.lengthSq() > 0) {
-                    playerVelocity.normalize().multiplyScalar(moveSpeed); camera.position.add(playerVelocity);
-                    if (Math.floor(Date.now() / 380) % 2 === 0 && Math.random() < 0.2) { playFootstep(75); }
-                }
-
-                camera.position.x = Math.max(-5.5, Math.min(5.5, camera.position.x)); camera.position.z = Math.max(-5.5, Math.min(5.5, camera.position.z));
-
-                let dx = camera.position.x - interactiveCoreAsset.position.x; let dz = camera.position.z - interactiveCoreAsset.position.z;
-                if (Math.sqrt(dx * dx + dz * dz) < 1.3) {
-                    hospitalModeActive = false; document.getElementById('hospital-hud').style.display = 'none';
-                    playTone(160, 0.5, 'sawtooth', 0.2); playTone(55, 1.0, 'sine', 0.4);
-
-                    let fallTimeline = 0;
-                    let fallInterval = setInterval(() => {
-                        fallTimeline += 0.04;
-                        if (fallTimeline >= 1.0) {
-                            clearInterval(fallInterval); camera.position.y = 0.15; camera.rotation.z = Math.PI / 3.5; 
-                            setTimeout(() => { executeCompleteSystemReset(); }, 1500);
-                        } else {
-                            camera.position.y = THREE.MathUtils.lerp(1.6, 0.15, fallTimeline); camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x, -Math.PI / 4, fallTimeline); camera.rotation.z = THREE.MathUtils.lerp(0, Math.PI / 3.5, fallTimeline);
-                        }
-                    }, 20);
-                }
-            }
-
-            if (gameActive && !isPaused && !hospitalModeActive) {
-                let runningDrain = 0.04; 
-                if (leftDoorClosed) runningDrain += 0.35; 
-                if (rightDoorClosed) runningDrain += 0.35;
-                powerLevel = Math.max(0, powerLevel - runningDrain);
-                
-                if (spacePressed) {
-                    powerLevel = Math.min(100, powerLevel + 0.6); 
-                    if (generatorWheel) { generatorWheel.rotation.z += 0.18; }
-                    if (customUrls.crank === "YOUR_CRANK_AUDIO_URL_HERE") {
-                        if (Math.random() < 0.25) { playTone(85 + Math.sin(Date.now() * 0.1) * 10, 0.04, 'sawtooth', 0.04); }
-                    }
-                }
-
-                camera.rotation.set(pitch, yaw, 0, 'YXZ');
-
-                if (flashlightModeEnabled && powerLevel > 0) {
-                    flashlightLight.position.copy(camera.position);
-                    const targetPosition = new THREE.Vector3(0, 0, -10).applyQuaternion(camera.quaternion);
-                    targetPosition.add(camera.position);
-                    
-                    flashlightLight.target.position.copy(targetPosition);
-                    flashlightLight.target.updateMatrixWorld();
-                }
-
-                document.getElementById('power-bar').style.width = `${powerLevel}%`;
-                document.getElementById('power-label').innerText = `AUXILIARY POWER: ${Math.floor(powerLevel)}%`;
-
-                if (powerLevel <= 0) {
-                    leftDoorClosed = false; rightDoorClosed = false;
-                    document.getElementById('status-left').innerText = "LEFT: DEAD"; document.getElementById('status-right').innerText = "RIGHT: DEAD";
-                    roomLight.intensity = 0; 
-                    flashlightLight.intensity = 0;
-                    globalAmbientLight.color.setHex(0x050505);
-                    if(audioObjects.crank) audioObjects.crank.pause();
-                } else {
-                    if (!flashlightModeEnabled) {
-                        roomLight.intensity = THREE.MathUtils.lerp(roomLight.intensity, 1.8, 0.1);
-                    }
-                }
-
-                if (leftDoorClosed && powerLevel > 0) { leftDoor.position.y = THREE.MathUtils.lerp(leftDoor.position.y, 1.6, 0.15); } 
-                else { leftDoor.position.y = THREE.MathUtils.lerp(leftDoor.position.y, 4.8, 0.12); }
-
-                if (rightDoorClosed && powerLevel > 0) { rightDoor.position.y = THREE.MathUtils.lerp(rightDoor.position.y, 1.6, 0.15); } 
-                else { rightDoor.position.y = THREE.MathUtils.lerp(rightDoor.position.y, 4.8, 0.12); }
-
-                if (monsterActive) {
-                    let computedSpeed = spacePressed ? (currentBaseSpeed * 1.4) : currentBaseSpeed;
-                    monsterProgress += computedSpeed;
-                    let currentX = monsterSide === "left" ? -13 + (10 * monsterProgress) : 13 - (10 * monsterProgress);
-
-                    if (currentMonsterType === "twitcher") {
-                        let pulseFactor = 1 + Math.sin(Date.now() * 0.05) * 0.4; monsterRoot.scale.set(pulseFactor, 2.2 - pulseFactor, 1);
-                        let blinkRoll = Math.floor(Date.now() / 50) % 2;
-                        monsterEyeLeft.material.color.setHex(blinkRoll === 0 ? 0xff0000 : 0xffffff); monsterEyeRight.material.color.setHex(blinkRoll === 0 ? 0xffffff : 0xff0000);
-                        if (Math.floor(Date.now() / 120) % 4 === 0 && Math.random() < 0.4) { playFootstep(85); }
-                    } 
-                    else if (currentMonsterType === "lurker") {
-                        monsterRoot.scale.set(1.4, 0.7, 1.4); monsterEyeLeft.material.color.setHex(0x00ff00); monsterEyeRight.material.color.setHex(0x00ff00);
-                        if (Math.random() < 0.04) { playTone(40 + Math.sin(Date.now() * 0.01) * 5, 0.4, 'sine', 0.2); }
-                    } 
-                    else { 
-                        monsterRoot.scale.set(1, 1, 1); monsterEyeLeft.material.color.setHex(0xff0000); monsterEyeRight.material.color.setHex(0xff0000);
-                        if (Math.random() < 0.06) { playTone(120 + (monsterProgress * 100), 0.05, 'sawtooth', 0.08); }
-                    }
-
-                    monsterRoot.position.set(currentX, 0.4, 0);
-
-                    if (monsterProgress >= 1.0) {
-                        if (monsterSide === "left" && leftDoorClosed && powerLevel > 0) { playTone(110, 0.5, 'sine', 0.2); monsterActive = false; } 
-                        else if (monsterSide === "right" && rightDoorClosed && powerLevel > 0) { playTone(110, 0.5, 'sine', 0.2); monsterActive = false; } 
-                        else {
-                            let nameText = currentMonsterType === "twitcher" ? "The Twitcher" : (currentMonsterType === "lurker" ? "The Lurker" : "The Stalker");
-                            triggerJumpscareSequence(`${nameText} breached the ${monsterSide} corridor while you were winding the generator.`);
-                        }
-                    }
-                } else { monsterRoot.position.set(0, -10, 0); }
-            }
-
-            renderer.render(scene, camera);
-        }
-
-        function triggerJumpscareSequence(reason) {
-            gameActive = false;
-            jumpscareActive = true;
-            jumpscareTimer = 1.4; 
-            
-            clearInterval(timerIntervalId);
-            clearTimeout(activeSpawnTimeout);
-            if(audioObjects.crank) audioObjects.crank.pause();
-            document.exitPointerLock();
-
-            monsterRoot.position.set(0, 1.2, -1.0);
-            monsterRoot.scale.set(4, 4, 4);
-            camera.lookAt(monsterRoot.position);
-
-            document.getElementById('hud-container').style.display = 'none';
-            document.getElementById('jumpscare-overlay').style.display = 'block';
-
-            if (!triggerCustomPlay('jumpscare')) {
-                playTone(90, 1.2, 'sawtooth', 0.6);
-                playTone(40, 1.2, 'sine', 0.8);
-            }
-
-            window.cachedDeathReason = reason;
-        }
-
-        function triggerGameOverTab() {
-            jumpscareActive = false;
-            document.getElementById('jumpscare-overlay').style.display = 'none';
-            
-            document.getElementById('death-reason').innerText = window.cachedDeathReason || "Security network breach reported.";
-            const diagnosticArea = document.getElementById('synthesis-diagnostic');
-            diagnosticArea.innerHTML = `<strong>[PERIMETER FAILURE LOG]</strong><br><br>Keep scanning the panoramic views left and right while holding spacebar to charge. Track the corridors carefully!`;
-            document.getElementById('game-over-screen').style.display = 'flex';
-            isPaused = true;
-        }
-
-        function executeCompleteSystemReset() {
-            document.getElementById('game-over-screen').style.display = 'none'; document.getElementById('hud-container').style.display = 'none'; document.getElementById('hospital-hud').style.display = 'none';
-            document.getElementById('jumpscare-overlay').style.display = 'none';
-            const vignette = document.getElementById('blink-vignette'); vignette.style.transition = "none"; vignette.style.opacity = 1.0;
-            
-            clearInterval(timerIntervalId); clearTimeout(activeSpawnTimeout);
-            if(audioObjects.crank) audioObjects.crank.pause();
-            controlStationGroup.position.set(0, 0, 0); dollRoomGroup.position.set(0, -100, 0);
-
-            scene.background.setHex(0x050508); scene.fog.color.setHex(0x050508); scene.fog.density = 0.12;
-            roomLight.color.setHex(0x55ff55); roomLight.position.set(0, 2.8, 0); globalAmbientLight.color.setHex(0x222533);
-
-            monsterActive = false; monsterRoot.position.set(0, -10, 0);
-            monsterRoot.scale.set(1, 1, 1);
-            camera.position.set(0, 0.5, 1.8); camera.rotation.set(-Math.PI / 6, 0, 0);
-
-            powerLevel = 100.0; timeRemainingSeconds = 300; 
-            document.getElementById('countdown-timer').innerText = "05:00";
-            
-            leftDoorClosed = false; rightDoorClosed = false; spacePressed = false; isPaused = true; cutsceneActive = false; hospitalModeActive = false; jumpscareActive = false;
-            cutsceneElapsedTime = 0; yaw = 0; pitch = 0;
-            keys.w = false; keys.a = false; keys.s = false; keys.d = false;
-
-            document.getElementById('status-left').innerText = "LEFT: OPEN"; document.getElementById('status-left').className = "";
-            document.getElementById('status-right').innerText = "RIGHT: OPEN"; document.getElementById('status-right').className = "";
-            document.getElementById('status-generator').innerText = "GEN: IDLE"; document.getElementById('status-generator').className = "";
-
-            document.getElementById('main-menu').style.display = 'block';
-        }
-
-        document.getElementById('btn-restart').addEventListener('click', executeCompleteSystemReset);
-
-        init3D();
-        animate();
+        // Mouse click support for testing
+        spacebar.addEventListener('mousedown', triggerBeat);
+        spacebar.addEventListener('mouseup', releaseBeat);
     </script>
 </body>
 </html>
