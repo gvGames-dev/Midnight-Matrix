@@ -498,11 +498,10 @@
             globalAmbientLight = new THREE.AmbientLight(0x222533); 
             scene.add(globalAmbientLight);
 
-            // Flashlight hardware attached directly onto screen viewport system
-            flashlightLight = new THREE.SpotLight(0xffffff, 0.0, 16, Math.PI / 6, 0.5, 1);
-            flashlightLight.position.set(0, 0, 0);
+            // Flashlight setup
+            flashlightLight = new THREE.SpotLight(0xffffff, 0.0, 25, Math.PI / 5, 0.4, 1);
             scene.add(flashlightLight);
-            flashlightLight.target = camera; 
+            scene.add(flashlightLight.target); // Explicitly add target to scene graph
 
             window.addEventListener('resize', onWindowResize, false);
         }
@@ -618,9 +617,9 @@
             
             // Adjust environment base styling to fit settings parameters before frame start
             if (flashlightModeEnabled) {
-                globalAmbientLight.intensity = 0.05;
+                globalAmbientLight.intensity = 0.02;
                 roomLight.intensity = 0.0;
-                flashlightLight.intensity = 3.0;
+                flashlightLight.intensity = 3.5;
             } else {
                 globalAmbientLight.intensity = 1.0;
                 roomLight.intensity = 1.8;
@@ -652,7 +651,7 @@
             scroller.style.top = creditsY + 'px';
         });
 
-        // Click on screen anywhere during credits to return safely to system menu
+        // Return to menu on click during credits
         document.getElementById('credits-frame').addEventListener('click', () => {
             creditsActive = false;
             document.getElementById('credits-frame').style.display = 'none';
@@ -699,7 +698,6 @@
                 camera.position.set(0, 0.5, 0); camera.rotation.set(-Math.PI / 10, 0, 0);
                 scene.background.setHex(0x1a1215); scene.fog.color.setHex(0x1a1215); scene.fog.density = 0.08;
                 
-                // Normal lighting overrides inside hospital loop sequence
                 roomLight.color.setHex(0xffaaee); roomLight.intensity = 1.0; roomLight.position.set(0, 3.2, -2.5); globalAmbientLight.color.setHex(0x44333b);
                 flashlightLight.intensity = 0.0; 
                 
@@ -789,7 +787,6 @@
         function spawnThreatCycle(customDelay = null) {
             if (!gameActive || isPaused || hospitalModeActive) return;
             
-            // --- DIFFICULTY CALCULATION MATRIX ---
             let frequencyMultiplier = 1.0;
             if (selectedDifficulty === "easy") frequencyMultiplier = 1.6;
             if (selectedDifficulty === "hard") frequencyMultiplier = 0.5;
@@ -806,7 +803,6 @@
                     else if (roll < 0.7) { currentMonsterType = "lurker"; currentBaseSpeed = 0.0035; } 
                     else { currentMonsterType = "stalker"; currentBaseSpeed = 0.007; }
 
-                    // Speed up dynamic variables slightly for harder structures
                     if (selectedDifficulty === "hard") currentBaseSpeed *= 1.35;
                     if (selectedDifficulty === "easy") currentBaseSpeed *= 0.75;
                 }
@@ -818,13 +814,12 @@
         function animate() {
             requestAnimationFrame(animate);
 
-            // Credits Transformation Engine
+            // Credits scrolling system
             if (creditsActive) {
                 creditsY -= 1.3; 
                 const scroller = document.getElementById('credits-scroller');
                 scroller.style.top = creditsY + 'px';
                 
-                // Reset frame to menu screen once scroll boundary is passed completely
                 if (creditsY < -450) {
                     creditsActive = false;
                     document.getElementById('credits-frame').style.display = 'none';
@@ -895,11 +890,16 @@
 
                 camera.rotation.set(pitch, yaw, 0, 'YXZ');
 
-                // Mirror flashlight position vectors to point completely forward alongside camera lens matrices
-                if(flashlightModeEnabled) {
+                // --- FIXED FLASHLIGHT POSITIONING MATRIX ---
+                if (flashlightModeEnabled && powerLevel > 0) {
                     flashlightLight.position.copy(camera.position);
-                    let vectorDir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
-                    flashlightLight.target.position.copy(camera.position).add(vectorDir);
+                    
+                    // Create vector tracking reference offset directly into screen view space
+                    const targetPosition = new THREE.Vector3(0, 0, -10).applyQuaternion(camera.quaternion);
+                    targetPosition.add(camera.position);
+                    
+                    flashlightLight.target.position.copy(targetPosition);
+                    flashlightLight.target.updateMatrixWorld();
                 }
 
                 document.getElementById('power-bar').style.width = `${powerLevel}%`;
@@ -979,7 +979,7 @@
             scene.background.setHex(0x050508); scene.fog.color.setHex(0x050508); scene.fog.density = 0.12;
             roomLight.color.setHex(0x55ff55); roomLight.position.set(0, 2.8, 0); globalAmbientLight.color.setHex(0x222533);
 
-            monsterActive = false; monsterRoot.position.set(0, -10, 0);
+            monsterActive = false; monsterRoot.position.set(0, -10, 0);          
             camera.position.set(0, 0.5, 1.8); camera.rotation.set(-Math.PI / 6, 0, 0);
 
             powerLevel = 100.0; timeRemainingSeconds = 300; 
@@ -993,7 +993,7 @@
             document.getElementById('status-right').innerText = "RIGHT: OPEN"; document.getElementById('status-right').className = "";
             document.getElementById('status-generator').innerText = "GEN: IDLE"; document.getElementById('status-generator').className = "";
 
-            // Return smoothly back to the main user interface screen menu
+            // Return to main menu
             document.getElementById('main-menu').style.display = 'block';
         }
 
