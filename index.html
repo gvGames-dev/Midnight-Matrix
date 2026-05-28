@@ -51,16 +51,6 @@
             text-shadow: 0 0 8px rgba(51, 255, 51, 0.4);
         }
 
-        h3 {
-            color: #33ffff;
-            font-size: 14px;
-            margin-top: 20px;
-            margin-bottom: 10px;
-            text-align: left;
-            border-bottom: 1px dashed #33ffff;
-            padding-bottom: 4px;
-        }
-
         .menu-btn {
             display: block;
             width: 100%;
@@ -90,31 +80,6 @@
             align-items: center;
             margin: 14px 0;
             font-size: 13px;
-        }
-
-        .audio-input-row {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            margin: 10px 0;
-            font-size: 12px;
-            width: 100%;
-        }
-
-        .audio-input-row label {
-            margin-bottom: 4px;
-            color: #bbb;
-        }
-
-        .audio-input-row input[type="text"] {
-            width: 100%;
-            background: #111;
-            border: 1px solid #33ffff;
-            color: #33ffff;
-            font-family: inherit;
-            padding: 6px;
-            box-sizing: border-box;
-            outline: none;
         }
 
         select, input[type="checkbox"] {
@@ -253,7 +218,6 @@
             transition: opacity 1.5s ease-in-out;
         }
 
-        /* Jumpscare overlay element */
         #jumpscare-overlay {
             display: none;
             position: absolute;
@@ -313,20 +277,6 @@
         <div class="setting-row">
             <label>FLASHLIGHT MODE (DARK):</label>
             <input type="checkbox" id="setting-flashlight">
-        </div>
-
-        <h3>CUSTOM AUDIO CONFIG (URL)</h3>
-        <div class="audio-input-row">
-            <label>Jumpscare Sound Effect URL:</label>
-            <input type="text" id="audio-jumpscare" placeholder="Leave empty for default synth scream...">
-        </div>
-        <div class="audio-input-row">
-            <label>Door Movement SFX URL:</label>
-            <input type="text" id="audio-door" placeholder="Leave empty for default airlock beep...">
-        </div>
-        <div class="audio-input-row">
-            <label>Generator Crank URL:</label>
-            <input type="text" id="audio-crank" placeholder="Leave empty for default electric hum...">
         </div>
 
         <button class="menu-btn" id="btn-close-settings" style="margin-top: 25px;">Save Settings</button>
@@ -407,8 +357,14 @@
         let selectedDifficulty = "normal";
         let flashlightModeEnabled = false;
 
-        // Custom File Asset Anchors
-        let customUrls = { jumpscare: "", door: "", crank: "" };
+        // ==========================================
+        // HARDCODED AUDIO LINKS (LOCK SCRIPT HERE)
+        // ==========================================
+        let customUrls = { 
+            jumpscare: "YOUR_JUMPSCARE_AUDIO_URL_HERE", 
+            door: "YOUR_DOOR_AUDIO_URL_HERE", 
+            crank: "YOUR_CRANK_AUDIO_URL_HERE" 
+        };
         let audioObjects = { jumpscare: null, door: null, crank: null };
 
         // --- Game System Mechanics ---
@@ -446,14 +402,13 @@
                 audioCtx.resume();
             }
             
-            // Build out persistent Audio element references to bypass load delays midway through actions
             if (customUrls.jumpscare && !audioObjects.jumpscare) { audioObjects.jumpscare = new Audio(customUrls.jumpscare); audioObjects.jumpscare.volume = 0.9; }
             if (customUrls.door && !audioObjects.door) { audioObjects.door = new Audio(customUrls.door); audioObjects.door.volume = 0.5; }
             if (customUrls.crank && !audioObjects.crank) { audioObjects.crank = new Audio(customUrls.crank); audioObjects.crank.volume = 0.3; audioObjects.crank.loop = true; }
         }
 
         function triggerCustomPlay(key) {
-            if (audioObjects[key]) {
+            if (audioObjects[key] && customUrls[key] !== "YOUR_" + key.toUpperCase() + "_AUDIO_URL_HERE") {
                 audioObjects[key].currentTime = 0;
                 audioObjects[key].play().catch(e => console.log("Custom audio play blocked or failed: ", e));
                 return true;
@@ -577,7 +532,6 @@
             buildControlStation();
             buildDollRoom();
 
-            // Setup Lights
             roomLight = new THREE.PointLight(0x55ff55, 1.8, 12); 
             roomLight.position.set(0, 2.8, 0); 
             scene.add(roomLight);
@@ -585,7 +539,6 @@
             globalAmbientLight = new THREE.AmbientLight(0x222533); 
             scene.add(globalAmbientLight);
 
-            // Flashlight setup
             flashlightLight = new THREE.SpotLight(0xffffff, 0.0, 25, Math.PI / 5, 0.4, 1);
             scene.add(flashlightLight);
             scene.add(flashlightLight.target); 
@@ -610,7 +563,6 @@
             const bedFrame = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.3, 2.0), new THREE.MeshStandardMaterial({ color: 0x2d221c, roughness: 0.9 }));
             bedFrame.position.set(0, 0.15, 1.8); controlStationGroup.add(bedFrame);
 
-            // Front Console Mounted Generator Wheel
             const generatorGroup = new THREE.Group();
             generatorGroup.position.set(0, 1.2, -2.85);
 
@@ -724,16 +676,6 @@
             selectedDifficulty = document.getElementById('setting-difficulty').value;
             flashlightModeEnabled = document.getElementById('setting-flashlight').checked;
 
-            // Extract custom paths
-            customUrls.jumpscare = document.getElementById('audio-jumpscare').value.trim();
-            customUrls.door = document.getElementById('audio-door').value.trim();
-            customUrls.crank = document.getElementById('audio-crank').value.trim();
-
-            // Clear internal caches so references update cleanly upon next interaction pass
-            audioObjects.jumpscare = null;
-            audioObjects.door = null;
-            audioObjects.crank = null;
-
             document.getElementById('settings-menu').style.display = 'none';
             document.getElementById('main-menu').style.display = 'block';
         });
@@ -829,7 +771,7 @@
                         spacePressed = true;
                         document.getElementById('status-generator').innerText = "GEN: CHARGING";
                         document.getElementById('status-generator').className = "gen-status";
-                        if(audioObjects.crank) audioObjects.crank.play().catch(e => {});
+                        if(audioObjects.crank && customUrls.crank !== "YOUR_CRANK_AUDIO_URL_HERE") audioObjects.crank.play().catch(e => {});
                     }
                 }
             }
@@ -919,16 +861,13 @@
         function animate() {
             requestAnimationFrame(animate);
 
-            // Jumpscare Camera Shake Mechanics
             if (jumpscareActive) {
                 jumpscareTimer -= 0.016;
                 
-                // Shake camera orientation dynamically
                 camera.position.x = (Math.random() - 0.5) * 0.3;
                 camera.position.y = 1.6 + (Math.random() - 0.5) * 0.3;
                 camera.position.z = (Math.random() - 0.5) * 0.3;
                 
-                // Rapid flashing display overlay
                 if (Math.floor(Date.now() / 40) % 2 === 0) {
                     document.getElementById('jumpscare-overlay').style.backgroundColor = '#ff0000';
                 } else {
@@ -1012,7 +951,7 @@
                 if (spacePressed) {
                     powerLevel = Math.min(100, powerLevel + 0.6); 
                     if (generatorWheel) { generatorWheel.rotation.z += 0.18; }
-                    if (!audioObjects.crank) {
+                    if (customUrls.crank === "YOUR_CRANK_AUDIO_URL_HERE") {
                         if (Math.random() < 0.25) { playTone(85 + Math.sin(Date.now() * 0.1) * 10, 0.04, 'sawtooth', 0.04); }
                     }
                 }
@@ -1086,18 +1025,16 @@
             renderer.render(scene, camera);
         }
 
-        // Triggers the initial horror event window
         function triggerJumpscareSequence(reason) {
             gameActive = false;
             jumpscareActive = true;
-            jumpscareTimer = 1.4; // Slightly extended to ensure custom audio tracks don't clip early
+            jumpscareTimer = 1.4; 
             
             clearInterval(timerIntervalId);
             clearTimeout(activeSpawnTimeout);
             if(audioObjects.crank) audioObjects.crank.pause();
             document.exitPointerLock();
 
-            // Set up local threat vector to pull directly into player perspective face window
             monsterRoot.position.set(0, 1.2, -1.0);
             monsterRoot.scale.set(4, 4, 4);
             camera.lookAt(monsterRoot.position);
@@ -1105,17 +1042,14 @@
             document.getElementById('hud-container').style.display = 'none';
             document.getElementById('jumpscare-overlay').style.display = 'block';
 
-            // Fire custom sound, or drop back down to standard synthetic waveform nodes
             if (!triggerCustomPlay('jumpscare')) {
                 playTone(90, 1.2, 'sawtooth', 0.6);
                 playTone(40, 1.2, 'sine', 0.8);
             }
 
-            // Stash game over message payload globally to load when timer clears
             window.cachedDeathReason = reason;
         }
 
-        // Renders reset interface elements after threat event window terminates
         function triggerGameOverTab() {
             jumpscareActive = false;
             document.getElementById('jumpscare-overlay').style.display = 'none';
