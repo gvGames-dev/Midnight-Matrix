@@ -38,7 +38,9 @@
             border: 2px solid #33ff33;
             z-index: 20;
             box-shadow: 0 0 30px rgba(0,255,0,0.3);
-            width: 460px;
+            width: 480px;
+            max-height: 90vh;
+            overflow-y: auto;
             box-sizing: border-box;
         }
 
@@ -47,6 +49,16 @@
             color: #33ff33;
             letter-spacing: 2px;
             text-shadow: 0 0 8px rgba(51, 255, 51, 0.4);
+        }
+
+        h3 {
+            color: #33ffff;
+            font-size: 14px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            text-align: left;
+            border-bottom: 1px dashed #33ffff;
+            padding-bottom: 4px;
         }
 
         .menu-btn {
@@ -76,8 +88,33 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin: 18px 0;
-            font-size: 14px;
+            margin: 14px 0;
+            font-size: 13px;
+        }
+
+        .audio-input-row {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin: 10px 0;
+            font-size: 12px;
+            width: 100%;
+        }
+
+        .audio-input-row label {
+            margin-bottom: 4px;
+            color: #bbb;
+        }
+
+        .audio-input-row input[type="text"] {
+            width: 100%;
+            background: #111;
+            border: 1px solid #33ffff;
+            color: #33ffff;
+            font-family: inherit;
+            padding: 6px;
+            box-sizing: border-box;
+            outline: none;
         }
 
         select, input[type="checkbox"] {
@@ -216,6 +253,16 @@
             transition: opacity 1.5s ease-in-out;
         }
 
+        /* Jumpscare overlay element */
+        #jumpscare-overlay {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #ff0000;
+            z-index: 28;
+            pointer-events: none;
+        }
+
         #hospital-hud {
             display: none;
             position: absolute;
@@ -239,7 +286,9 @@
 <body>
 
     <div id="blink-vignette"></div>
+    <div id="jumpscare-overlay"></div>
 
+    <!-- MAIN MENU LAYER -->
     <div id="main-menu" class="menu-panel">
         <h2>SYSTEM OVERLOAD</h2>
         <p style="font-size: 11px; color: #888; margin-bottom: 20px;">CRANK PROTOCOL ENGAGED</p>
@@ -248,6 +297,7 @@
         <button class="menu-btn" id="btn-open-credits">Credits</button>
     </div>
 
+    <!-- SETTINGS FRAME -->
     <div id="settings-menu" class="menu-panel" style="display: none;">
         <h2>CONFIGURATION</h2>
         
@@ -265,9 +315,24 @@
             <input type="checkbox" id="setting-flashlight">
         </div>
 
+        <h3>CUSTOM AUDIO CONFIG (URL)</h3>
+        <div class="audio-input-row">
+            <label>Jumpscare Sound Effect URL:</label>
+            <input type="text" id="audio-jumpscare" placeholder="Leave empty for default synth scream...">
+        </div>
+        <div class="audio-input-row">
+            <label>Door Movement SFX URL:</label>
+            <input type="text" id="audio-door" placeholder="Leave empty for default airlock beep...">
+        </div>
+        <div class="audio-input-row">
+            <label>Generator Crank URL:</label>
+            <input type="text" id="audio-crank" placeholder="Leave empty for default electric hum...">
+        </div>
+
         <button class="menu-btn" id="btn-close-settings" style="margin-top: 25px;">Save Settings</button>
     </div>
 
+    <!-- CREDITS SCROLLING FRAME -->
     <div id="credits-frame">
         <div id="credits-scroller">
             <p><strong>3D SYSTEM OVERLOAD</strong></p>
@@ -284,6 +349,7 @@
         </div>
     </div>
 
+    <!-- GAME OVER OVERLAY -->
     <div id="game-over-screen">
         <h1>CONNECTION TERMINATED</h1>
         <p id="death-reason" style="font-size: 16px; margin-top: 10px; color: #bbbbbb; text-align: center; max-width: 600px;"></p>
@@ -291,6 +357,7 @@
         <button class="menu-btn" id="btn-restart" style="width: 250px;">Restart Simulation</button>
     </div>
 
+    <!-- IN-GAME HUD -->
     <div id="hud-container">
         <div id="countdown-timer">05:00</div>
         <div style="color: #33ff33; font-size: 12px; font-weight: bold;" id="power-label">AUXILIARY POWER: 100%</div>
@@ -328,6 +395,8 @@
         let isPaused = true; 
         let creditsActive = false;
         let creditsY = 0;
+        let jumpscareActive = false;
+        let jumpscareTimer = 0;
         
         let cutsceneElapsedTime = 0; 
         const targetCamPos = new THREE.Vector3(0, 1.6, 0);
@@ -337,6 +406,10 @@
         let timerIntervalId = null;
         let selectedDifficulty = "normal";
         let flashlightModeEnabled = false;
+
+        // Custom File Asset Anchors
+        let customUrls = { jumpscare: "", door: "", crank: "" };
+        let audioObjects = { jumpscare: null, door: null, crank: null };
 
         // --- Game System Mechanics ---
         let leftDoorClosed = false;
@@ -372,10 +445,24 @@
             if (audioCtx && audioCtx.state === 'suspended') {
                 audioCtx.resume();
             }
+            
+            // Build out persistent Audio element references to bypass load delays midway through actions
+            if (customUrls.jumpscare && !audioObjects.jumpscare) { audioObjects.jumpscare = new Audio(customUrls.jumpscare); audioObjects.jumpscare.volume = 0.9; }
+            if (customUrls.door && !audioObjects.door) { audioObjects.door = new Audio(customUrls.door); audioObjects.door.volume = 0.5; }
+            if (customUrls.crank && !audioObjects.crank) { audioObjects.crank = new Audio(customUrls.crank); audioObjects.crank.volume = 0.3; audioObjects.crank.loop = true; }
+        }
+
+        function triggerCustomPlay(key) {
+            if (audioObjects[key]) {
+                audioObjects[key].currentTime = 0;
+                audioObjects[key].play().catch(e => console.log("Custom audio play blocked or failed: ", e));
+                return true;
+            }
+            return false;
         }
 
         function playTone(freq, duration, type = 'sine', vol = 0.1) {
-            if(!audioCtx || isPaused) return;
+            if(!audioCtx) return;
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = type;
@@ -501,7 +588,7 @@
             // Flashlight setup
             flashlightLight = new THREE.SpotLight(0xffffff, 0.0, 25, Math.PI / 5, 0.4, 1);
             scene.add(flashlightLight);
-            scene.add(flashlightLight.target); // Explicitly add target to scene graph
+            scene.add(flashlightLight.target); 
 
             window.addEventListener('resize', onWindowResize, false);
         }
@@ -615,7 +702,6 @@
             document.getElementById('main-menu').style.display = 'none';
             isPaused = false;
             
-            // Adjust environment base styling to fit settings parameters before frame start
             if (flashlightModeEnabled) {
                 globalAmbientLight.intensity = 0.02;
                 roomLight.intensity = 0.0;
@@ -637,6 +723,17 @@
         document.getElementById('btn-close-settings').addEventListener('click', () => {
             selectedDifficulty = document.getElementById('setting-difficulty').value;
             flashlightModeEnabled = document.getElementById('setting-flashlight').checked;
+
+            // Extract custom paths
+            customUrls.jumpscare = document.getElementById('audio-jumpscare').value.trim();
+            customUrls.door = document.getElementById('audio-door').value.trim();
+            customUrls.crank = document.getElementById('audio-crank').value.trim();
+
+            // Clear internal caches so references update cleanly upon next interaction pass
+            audioObjects.jumpscare = null;
+            audioObjects.door = null;
+            audioObjects.crank = null;
+
             document.getElementById('settings-menu').style.display = 'none';
             document.getElementById('main-menu').style.display = 'block';
         });
@@ -651,7 +748,6 @@
             scroller.style.top = creditsY + 'px';
         });
 
-        // Return to menu on click during credits
         document.getElementById('credits-frame').addEventListener('click', () => {
             creditsActive = false;
             document.getElementById('credits-frame').style.display = 'none';
@@ -660,12 +756,14 @@
 
         document.addEventListener('pointerlockchange', () => {
             if (document.pointerLockElement === document.body) {
+                if (jumpscareActive) return;
                 isPaused = false; 
                 if (!gameActive && !cutsceneActive && cutsceneElapsedTime === 0 && !hospitalModeActive) { startCutsceneSequence(); }
                 else if (gameActive && !hospitalModeActive) { spawnThreatCycle(pauseTimeRemaining > 0 ? pauseTimeRemaining : null); startCountdownProcessor(); }
                 else if (hospitalModeActive) { startCountdownProcessor(); }
             } else {
                 spacePressed = false; 
+                if(audioObjects.crank) audioObjects.crank.pause();
             }
         });
 
@@ -677,7 +775,7 @@
         function startCountdownProcessor() {
             clearInterval(timerIntervalId);
             timerIntervalId = setInterval(() => {
-                if (isPaused) return;
+                if (isPaused || jumpscareActive) return;
                 timeRemainingSeconds--;
                 let minutes = Math.floor(timeRemainingSeconds / 60); let seconds = timeRemainingSeconds % 60;
                 document.getElementById('countdown-timer').innerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
@@ -687,6 +785,7 @@
 
         function triggerHospitalTransition() {
             gameActive = false; cutsceneActive = false; clearTimeout(activeSpawnTimeout);
+            if(audioObjects.crank) audioObjects.crank.pause();
             document.getElementById('hud-container').style.display = 'none';
             const vignette = document.getElementById('blink-vignette');
             vignette.style.transition = "opacity 2.5s ease-in-out"; vignette.style.opacity = 1.0;
@@ -721,14 +820,17 @@
 
         // --- Core Movement & Interaction Listeners ---
         document.addEventListener('keydown', (e) => {
-            if (isPaused) return;
+            if (isPaused || jumpscareActive) return;
             if (hospitalModeActive) {
                 if (e.key.toLowerCase() === 'w') keys.w = true; if (e.key.toLowerCase() === 'a') keys.a = true; if (e.key.toLowerCase() === 's') keys.s = true; if (e.key.toLowerCase() === 'd') keys.d = true;
             } else if (gameActive) {
                 if (e.code === 'Space') {
-                    spacePressed = true;
-                    document.getElementById('status-generator').innerText = "GEN: CHARGING";
-                    document.getElementById('status-generator').className = "gen-status";
+                    if (!spacePressed) {
+                        spacePressed = true;
+                        document.getElementById('status-generator').innerText = "GEN: CHARGING";
+                        document.getElementById('status-generator').className = "gen-status";
+                        if(audioObjects.crank) audioObjects.crank.play().catch(e => {});
+                    }
                 }
             }
         });
@@ -741,28 +843,31 @@
                     spacePressed = false;
                     document.getElementById('status-generator').innerText = "GEN: IDLE";
                     document.getElementById('status-generator').className = "";
+                    if(audioObjects.crank) audioObjects.crank.pause();
                 }
             }
         });
 
         document.addEventListener('mousedown', (e) => {
-            if (!gameActive || cutsceneActive || isPaused || hospitalModeActive) return;
+            if (!gameActive || cutsceneActive || isPaused || hospitalModeActive || jumpscareActive) return;
             if (e.button === 0) {
                 if (powerLevel > 0) {
                     leftDoorClosed = !leftDoorClosed; document.getElementById('status-left').innerText = leftDoorClosed ? "LEFT: CLOSED" : "LEFT: OPEN";
-                    document.getElementById('status-left').className = leftDoorClosed ? "active-status" : ""; playTone(leftDoorClosed ? 180 : 280, 0.25, 'triangle');
+                    document.getElementById('status-left').className = leftDoorClosed ? "active-status" : ""; 
+                    if (!triggerCustomPlay('door')) { playTone(leftDoorClosed ? 180 : 280, 0.25, 'triangle'); }
                 }
             } 
             else if (e.button === 2) {
                 if (powerLevel > 0) {
                     rightDoorClosed = !rightDoorClosed; document.getElementById('status-right').innerText = rightDoorClosed ? "RIGHT: CLOSED" : "RIGHT: OPEN";
-                    document.getElementById('status-right').className = rightDoorClosed ? "active-status" : ""; playTone(rightDoorClosed ? 180 : 280, 0.25, 'triangle');
+                    document.getElementById('status-right').className = rightDoorClosed ? "active-status" : ""; 
+                    if (!triggerCustomPlay('door')) { playTone(rightDoorClosed ? 180 : 280, 0.25, 'triangle'); }
                 }
             }
         });
 
         document.addEventListener('mousemove', (e) => {
-            if (isPaused || cutsceneActive) return;
+            if (isPaused || cutsceneActive || jumpscareActive) return;
             
             let deltaX = e.movementX * 0.0022;
             let deltaY = e.movementY * 0.0022;
@@ -785,7 +890,7 @@
         document.addEventListener('contextmenu', e => e.preventDefault());
 
         function spawnThreatCycle(customDelay = null) {
-            if (!gameActive || isPaused || hospitalModeActive) return;
+            if (!gameActive || isPaused || hospitalModeActive || jumpscareActive) return;
             
             let frequencyMultiplier = 1.0;
             if (selectedDifficulty === "easy") frequencyMultiplier = 1.6;
@@ -795,7 +900,7 @@
             pauseTimeRemaining = nextSpawnDelay;
 
             activeSpawnTimeout = setTimeout(() => {
-                if (!gameActive || isPaused || hospitalModeActive) return;
+                if (!gameActive || isPaused || hospitalModeActive || jumpscareActive) return;
                 if (!monsterActive) {
                     monsterSide = Math.random() > 0.5 ? "left" : "right"; monsterProgress = 0; monsterActive = true;
                     let roll = Math.random();
@@ -814,7 +919,29 @@
         function animate() {
             requestAnimationFrame(animate);
 
-            // Credits scrolling system
+            // Jumpscare Camera Shake Mechanics
+            if (jumpscareActive) {
+                jumpscareTimer -= 0.016;
+                
+                // Shake camera orientation dynamically
+                camera.position.x = (Math.random() - 0.5) * 0.3;
+                camera.position.y = 1.6 + (Math.random() - 0.5) * 0.3;
+                camera.position.z = (Math.random() - 0.5) * 0.3;
+                
+                // Rapid flashing display overlay
+                if (Math.floor(Date.now() / 40) % 2 === 0) {
+                    document.getElementById('jumpscare-overlay').style.backgroundColor = '#ff0000';
+                } else {
+                    document.getElementById('jumpscare-overlay').style.backgroundColor = '#000000';
+                }
+
+                if (jumpscareTimer <= 0) {
+                    triggerGameOverTab();
+                }
+                renderer.render(scene, camera);
+                return; 
+            }
+
             if (creditsActive) {
                 creditsY -= 1.3; 
                 const scroller = document.getElementById('credits-scroller');
@@ -885,16 +1012,15 @@
                 if (spacePressed) {
                     powerLevel = Math.min(100, powerLevel + 0.6); 
                     if (generatorWheel) { generatorWheel.rotation.z += 0.18; }
-                    if (Math.random() < 0.25) { playTone(85 + Math.sin(Date.now() * 0.1) * 10, 0.04, 'sawtooth', 0.04); }
+                    if (!audioObjects.crank) {
+                        if (Math.random() < 0.25) { playTone(85 + Math.sin(Date.now() * 0.1) * 10, 0.04, 'sawtooth', 0.04); }
+                    }
                 }
 
                 camera.rotation.set(pitch, yaw, 0, 'YXZ');
 
-                // --- FIXED FLASHLIGHT POSITIONING MATRIX ---
                 if (flashlightModeEnabled && powerLevel > 0) {
                     flashlightLight.position.copy(camera.position);
-                    
-                    // Create vector tracking reference offset directly into screen view space
                     const targetPosition = new THREE.Vector3(0, 0, -10).applyQuaternion(camera.quaternion);
                     targetPosition.add(camera.position);
                     
@@ -911,6 +1037,7 @@
                     roomLight.intensity = 0; 
                     flashlightLight.intensity = 0;
                     globalAmbientLight.color.setHex(0x050505);
+                    if(audioObjects.crank) audioObjects.crank.pause();
                 } else {
                     if (!flashlightModeEnabled) {
                         roomLight.intensity = THREE.MathUtils.lerp(roomLight.intensity, 1.8, 0.1);
@@ -950,7 +1077,7 @@
                         else if (monsterSide === "right" && rightDoorClosed && powerLevel > 0) { playTone(110, 0.5, 'sine', 0.2); monsterActive = false; } 
                         else {
                             let nameText = currentMonsterType === "twitcher" ? "The Twitcher" : (currentMonsterType === "lurker" ? "The Lurker" : "The Stalker");
-                            gameOver(`${nameText} breached the ${monsterSide} corridor while you were winding the generator.`);
+                            triggerJumpscareSequence(`${nameText} breached the ${monsterSide} corridor while you were winding the generator.`);
                         }
                     }
                 } else { monsterRoot.position.set(0, -10, 0); }
@@ -959,33 +1086,67 @@
             renderer.render(scene, camera);
         }
 
-        function gameOver(reason) {
-            gameActive = false; clearInterval(timerIntervalId); document.exitPointerLock();
-            document.getElementById('death-reason').innerText = reason;
+        // Triggers the initial horror event window
+        function triggerJumpscareSequence(reason) {
+            gameActive = false;
+            jumpscareActive = true;
+            jumpscareTimer = 1.4; // Slightly extended to ensure custom audio tracks don't clip early
+            
+            clearInterval(timerIntervalId);
+            clearTimeout(activeSpawnTimeout);
+            if(audioObjects.crank) audioObjects.crank.pause();
+            document.exitPointerLock();
+
+            // Set up local threat vector to pull directly into player perspective face window
+            monsterRoot.position.set(0, 1.2, -1.0);
+            monsterRoot.scale.set(4, 4, 4);
+            camera.lookAt(monsterRoot.position);
+
+            document.getElementById('hud-container').style.display = 'none';
+            document.getElementById('jumpscare-overlay').style.display = 'block';
+
+            // Fire custom sound, or drop back down to standard synthetic waveform nodes
+            if (!triggerCustomPlay('jumpscare')) {
+                playTone(90, 1.2, 'sawtooth', 0.6);
+                playTone(40, 1.2, 'sine', 0.8);
+            }
+
+            // Stash game over message payload globally to load when timer clears
+            window.cachedDeathReason = reason;
+        }
+
+        // Renders reset interface elements after threat event window terminates
+        function triggerGameOverTab() {
+            jumpscareActive = false;
+            document.getElementById('jumpscare-overlay').style.display = 'none';
+            
+            document.getElementById('death-reason').innerText = window.cachedDeathReason || "Security network breach reported.";
             const diagnosticArea = document.getElementById('synthesis-diagnostic');
             diagnosticArea.innerHTML = `<strong>[PERIMETER FAILURE LOG]</strong><br><br>Keep scanning the panoramic views left and right while holding spacebar to charge. Track the corridors carefully!`;
             document.getElementById('game-over-screen').style.display = 'flex';
-            playTone(35, 3.0, 'sawtooth', 0.3);
             isPaused = true;
         }
 
         function executeCompleteSystemReset() {
             document.getElementById('game-over-screen').style.display = 'none'; document.getElementById('hud-container').style.display = 'none'; document.getElementById('hospital-hud').style.display = 'none';
+            document.getElementById('jumpscare-overlay').style.display = 'none';
             const vignette = document.getElementById('blink-vignette'); vignette.style.transition = "none"; vignette.style.opacity = 1.0;
             
             clearInterval(timerIntervalId); clearTimeout(activeSpawnTimeout);
+            if(audioObjects.crank) audioObjects.crank.pause();
             controlStationGroup.position.set(0, 0, 0); dollRoomGroup.position.set(0, -100, 0);
 
             scene.background.setHex(0x050508); scene.fog.color.setHex(0x050508); scene.fog.density = 0.12;
             roomLight.color.setHex(0x55ff55); roomLight.position.set(0, 2.8, 0); globalAmbientLight.color.setHex(0x222533);
 
-            monsterActive = false; monsterRoot.position.set(0, -10, 0);          
+            monsterActive = false; monsterRoot.position.set(0, -10, 0);
+            monsterRoot.scale.set(1, 1, 1);
             camera.position.set(0, 0.5, 1.8); camera.rotation.set(-Math.PI / 6, 0, 0);
 
             powerLevel = 100.0; timeRemainingSeconds = 300; 
             document.getElementById('countdown-timer').innerText = "05:00";
             
-            leftDoorClosed = false; rightDoorClosed = false; spacePressed = false; isPaused = true; cutsceneActive = false; hospitalModeActive = false;
+            leftDoorClosed = false; rightDoorClosed = false; spacePressed = false; isPaused = true; cutsceneActive = false; hospitalModeActive = false; jumpscareActive = false;
             cutsceneElapsedTime = 0; yaw = 0; pitch = 0;
             keys.w = false; keys.a = false; keys.s = false; keys.d = false;
 
@@ -993,7 +1154,6 @@
             document.getElementById('status-right').innerText = "RIGHT: OPEN"; document.getElementById('status-right').className = "";
             document.getElementById('status-generator').innerText = "GEN: IDLE"; document.getElementById('status-generator').className = "";
 
-            // Return to main menu
             document.getElementById('main-menu').style.display = 'block';
         }
 
