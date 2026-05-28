@@ -196,7 +196,7 @@
     </div>
 
     <div id="hud-container">
-        <div id="countdown-timer">00:15</div>
+        <div id="countdown-timer">05:00</div>
         <div style="color: #33ff33; font-size: 12px; font-weight: bold;" id="power-label">AUXILIARY POWER: 100%</div>
         <div id="power-bar-container">
             <div id="power-bar"></div>
@@ -229,13 +229,13 @@
         let gameActive = false;
         let cutsceneActive = false;
         let hospitalModeActive = false; 
-        let isPaused = true; // Starts paused until user interactions unlock it
+        let isPaused = true; 
         
         let cutsceneElapsedTime = 0; 
         const targetCamPos = new THREE.Vector3(0, 1.6, 0);
 
-        // --- Mission Countdown Clock ---
-        let timeRemainingSeconds = 15; 
+        // --- Mission Countdown Clock (300 seconds = 5 minutes) ---
+        let timeRemainingSeconds = 300; 
         let timerIntervalId = null;
 
         // --- Game System Mechanics ---
@@ -262,7 +262,7 @@
         let playerVelocity = new THREE.Vector3();
         const moveSpeed = 0.05;
 
-        // --- Audio Context Engine (Safe initialization fallback) ---
+        // --- Audio Context Engine ---
         let audioCtx = null;
 
         function initAudio() {
@@ -502,13 +502,11 @@
             camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight);
         }
 
-        // Action initialization trigger fixed here
         const instructions = document.getElementById('instructions');
         instructions.addEventListener('click', () => { 
-            initAudio(); // Force audio unblock on click action
+            initAudio(); 
             document.body.requestPointerLock(); 
             
-            // Safe fallback logic if pointers lock is rejected by iframe security limits
             if (isPaused) {
                 instructions.style.display = 'none'; 
                 isPaused = false;
@@ -523,7 +521,6 @@
                 else if (gameActive && !hospitalModeActive) { spawnThreatCycle(pauseTimeRemaining > 0 ? pauseTimeRemaining : null); startCountdownProcessor(); }
                 else if (hospitalModeActive) { startCountdownProcessor(); }
             } else {
-                // Keep the engine active even if pointer lock is lost or broken inside sandboxed runtimes
                 spacePressed = false; 
             }
         });
@@ -623,9 +620,7 @@
             let deltaX = e.movementX * 0.0022;
             let deltaY = e.movementY * 0.0022;
             
-            // Safe manual backup look mechanics if pointerlock is rejected
             if(document.pointerLockElement !== document.body) {
-                // Map screen coordinates roughly to simulate cross-browser look states if running outside standard modes
                 deltaX = (e.clientX / window.innerWidth - 0.5) * 0.05;
                 deltaY = (e.clientY / window.innerHeight - 0.5) * 0.05;
             }
@@ -719,7 +714,6 @@
                 if (rightDoorClosed) runningDrain += 0.35;
                 powerLevel = Math.max(0, powerLevel - runningDrain);
                 
-                // --- GENERATOR CRANK PROCESSING ---
                 if (spacePressed) {
                     powerLevel = Math.min(100, powerLevel + 0.6); 
                     
@@ -809,8 +803,9 @@
             monsterActive = false; monsterRoot.position.set(0, -10, 0);
             camera.position.set(0, 0.5, 1.8); camera.rotation.set(-Math.PI / 6, 0, 0);
 
-            powerLevel = 100.0; timeRemainingSeconds = 15; 
-            document.getElementById('countdown-timer').innerText = "00:15";
+            // Re-established 5 minute baselines on execution loop triggers
+            powerLevel = 100.0; timeRemainingSeconds = 300; 
+            document.getElementById('countdown-timer').innerText = "05:00";
             
             leftDoorClosed = false; rightDoorClosed = false; spacePressed = false; isPaused = false; cutsceneActive = false; hospitalModeActive = false;
             cutsceneElapsedTime = 0; yaw = 0; pitch = 0;
@@ -825,7 +820,6 @@
 
         document.getElementById('btn-restart').addEventListener('click', executeCompleteSystemReset);
 
-        // Run rendering systems instantly on load
         init3D();
         animate();
     </script>
