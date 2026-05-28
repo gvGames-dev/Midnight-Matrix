@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D SYSTEM OVERLOAD: FRONT CRANK FREE-CAM TEST</title>
+    <title>3D SYSTEM OVERLOAD: EXPANDED EDITION</title>
     <style>
         body, html {
             margin: 0;
@@ -25,6 +25,102 @@
             z-index: 1;
         }
 
+        /* --- UI Menu Panels --- */
+        .menu-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            text-align: center;
+            background: rgba(5, 5, 5, 0.95);
+            padding: 30px;
+            border: 2px solid #33ff33;
+            z-index: 20;
+            box-shadow: 0 0 30px rgba(0,255,0,0.3);
+            width: 460px;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #33ff33;
+            letter-spacing: 2px;
+            text-shadow: 0 0 8px rgba(51, 255, 51, 0.4);
+        }
+
+        .menu-btn {
+            display: block;
+            width: 100%;
+            background: transparent;
+            border: 1px solid #33ff33;
+            color: #33ff33;
+            font-family: inherit;
+            font-size: 16px;
+            padding: 12px;
+            margin: 12px 0;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            box-shadow: 0 0 5px rgba(0, 255, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .menu-btn:hover {
+            background: #33ff33;
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 18px 0;
+            font-size: 14px;
+        }
+
+        select, input[type="checkbox"] {
+            background: #111;
+            border: 1px solid #33ff33;
+            color: #33ff33;
+            font-family: inherit;
+            padding: 6px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* --- Credits Frame Matrix --- */
+        #credits-frame {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 25;
+            overflow: hidden;
+            color: #33ff33;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #credits-scroller {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            top: 100%;
+            line-height: 2.2;
+            font-size: 16px;
+        }
+
+        .special-thanks {
+            font-size: 26px;
+            color: #ff33aa;
+            text-shadow: 0 0 10px rgba(255,51,170,0.6);
+            margin-top: 50px;
+            font-weight: bold;
+        }
+
+        /* --- HUD --- */
         #hud-container {
             display: none; 
             position: absolute;
@@ -84,22 +180,6 @@
             font-weight: bold;
         }
 
-        #instructions {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #fff;
-            text-align: center;
-            background: rgba(0,0,0,0.9);
-            padding: 25px;
-            border: 2px solid #33ff33;
-            z-index: 20;
-            cursor: pointer;
-            box-shadow: 0 0 30px rgba(0,255,0,0.3);
-            width: 450px;
-        }
-
         #game-over-screen {
             display: none;
             position: absolute;
@@ -124,27 +204,6 @@
             width: 500px;
             max-width: 90%;
             line-height: 1.4;
-        }
-
-        #btn-restart {
-            margin-top: 25px;
-            background: transparent;
-            border: 2px solid #33ff33;
-            color: #33ff33;
-            font-family: inherit;
-            font-size: 16px;
-            padding: 10px 25px;
-            cursor: pointer;
-            font-weight: bold;
-            text-transform: uppercase;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.1);
-            transition: all 0.2s ease;
-        }
-
-        #btn-restart:hover {
-            background: #33ff33;
-            color: #000;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
         }
 
         #blink-vignette {
@@ -181,18 +240,55 @@
 
     <div id="blink-vignette"></div>
 
-    <div id="instructions">
-        <h2>FRONT-CRANK SIMULATION</h2>
-        <p style="margin-top: 10px; font-size: 13px;"><b>RECONFIGURED MODULE:</b> The generator wheel is now mounted directly on the front console wall.</p>
-        <p style="color: #ffff33; margin: 10px 0; font-size: 13px;"><b>SPACEBAR (Hold)</b> = Spin Front Crank | <b>MOUSE</b> = Unlocked Panoramic View</p>
-        <p style="color: #33ff33; margin-top: 20px; font-weight: bold;">[ CLICK TO START GAME ]</p>
+    <div id="main-menu" class="menu-panel">
+        <h2>SYSTEM OVERLOAD</h2>
+        <p style="font-size: 11px; color: #888; margin-bottom: 20px;">CRANK PROTOCOL ENGAGED</p>
+        <button class="menu-btn" id="btn-play-game">Start Simulation</button>
+        <button class="menu-btn" id="btn-open-settings">Configuration</button>
+        <button class="menu-btn" id="btn-open-credits">Credits</button>
+    </div>
+
+    <div id="settings-menu" class="menu-panel" style="display: none;">
+        <h2>CONFIGURATION</h2>
+        
+        <div class="setting-row">
+            <label>AI THREAT FREQUENCY:</label>
+            <select id="setting-difficulty">
+                <option value="easy">EASY ARCHITECTURE</option>
+                <option value="normal" selected>NORMAL ENGINE</option>
+                <option value="hard">HARDCORE MATRIX</option>
+            </select>
+        </div>
+
+        <div class="setting-row">
+            <label>FLASHLIGHT MODE (DARK):</label>
+            <input type="checkbox" id="setting-flashlight">
+        </div>
+
+        <button class="menu-btn" id="btn-close-settings" style="margin-top: 25px;">Save Settings</button>
+    </div>
+
+    <div id="credits-frame">
+        <div id="credits-scroller">
+            <p><strong>3D SYSTEM OVERLOAD</strong></p>
+            <p>CORE ARCHITECTURE DESIGN</p>
+            <p>PROCEDURAL GENERATOR MATRICES</p>
+            <p>3D GRAPHICS ENGINE USING THREE.JS</p>
+            <p>SYNTHETIC AUDIO WAVE PROTOTYPER</p>
+            <p>DOLL NURSERY DESIGN LABS</p>
+            <br>
+            <p>DIAGNOSTIC SIMULATOR LOGS</p>
+            <p>POINTER INTERACTION PATCH V2.6</p>
+            <br><br>
+            <div class="special-thanks">SPECIAL THANKS TO YOU</div>
+        </div>
     </div>
 
     <div id="game-over-screen">
         <h1>CONNECTION TERMINATED</h1>
         <p id="death-reason" style="font-size: 16px; margin-top: 10px; color: #bbbbbb; text-align: center; max-width: 600px;"></p>
         <div class="diagnostic-box" id="synthesis-diagnostic"></div>
-        <button id="btn-restart">Restart Simulation</button>
+        <button class="menu-btn" id="btn-restart" style="width: 250px;">Restart Simulation</button>
     </div>
 
     <div id="hud-container">
@@ -217,7 +313,7 @@
         let scene, camera, renderer;
         let leftDoor, rightDoor;
         let monsterRoot, monsterEyeLeft, monsterEyeRight;
-        let roomLight, globalAmbientLight;
+        let roomLight, globalAmbientLight, flashlightLight;
         let dollRoomGroup, controlStationGroup;
         let interactiveCoreAsset; 
         let generatorWheel; 
@@ -230,13 +326,17 @@
         let cutsceneActive = false;
         let hospitalModeActive = false; 
         let isPaused = true; 
+        let creditsActive = false;
+        let creditsY = 0;
         
         let cutsceneElapsedTime = 0; 
         const targetCamPos = new THREE.Vector3(0, 1.6, 0);
 
-        // --- Mission Countdown Clock (300 seconds = 5 minutes) ---
+        // --- Configuration Engine Variables ---
         let timeRemainingSeconds = 300; 
         let timerIntervalId = null;
+        let selectedDifficulty = "normal";
+        let flashlightModeEnabled = false;
 
         // --- Game System Mechanics ---
         let leftDoorClosed = false;
@@ -252,17 +352,17 @@
         let activeSpawnTimeout = null;
         let pauseTimeRemaining = 0; 
 
-        // Looking/Orientation Controls
+        // Looking Matrix
         let yaw = 0, pitch = 0;
         const maxYaw = Math.PI / 2.3; 
         const maxPitch = Math.PI / 3.5;
 
-        // Keyboard Movement Matrix
+        // Keyboard Elements
         const keys = { w: false, a: false, s: false, d: false };
         let playerVelocity = new THREE.Vector3();
         const moveSpeed = 0.05;
 
-        // --- Audio Context Engine ---
+        // Audio Anchor
         let audioCtx = null;
 
         function initAudio() {
@@ -390,12 +490,19 @@
             buildControlStation();
             buildDollRoom();
 
+            // Setup Lights
             roomLight = new THREE.PointLight(0x55ff55, 1.8, 12); 
             roomLight.position.set(0, 2.8, 0); 
             scene.add(roomLight);
 
             globalAmbientLight = new THREE.AmbientLight(0x222533); 
             scene.add(globalAmbientLight);
+
+            // Flashlight hardware attached directly onto screen viewport system
+            flashlightLight = new THREE.SpotLight(0xffffff, 0.0, 16, Math.PI / 6, 0.5, 1);
+            flashlightLight.position.set(0, 0, 0);
+            scene.add(flashlightLight);
+            flashlightLight.target = camera; 
 
             window.addEventListener('resize', onWindowResize, false);
         }
@@ -417,7 +524,7 @@
             const bedFrame = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.3, 2.0), new THREE.MeshStandardMaterial({ color: 0x2d221c, roughness: 0.9 }));
             bedFrame.position.set(0, 0.15, 1.8); controlStationGroup.add(bedFrame);
 
-            // --- Front Console Mounted Generator ---
+            // Front Console Mounted Generator Wheel
             const generatorGroup = new THREE.Group();
             generatorGroup.position.set(0, 1.2, -2.85);
 
@@ -502,21 +609,59 @@
             camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight);
         }
 
-        const instructions = document.getElementById('instructions');
-        instructions.addEventListener('click', () => { 
-            initAudio(); 
-            document.body.requestPointerLock(); 
+        // --- Menu Button Event Handlers ---
+        document.getElementById('btn-play-game').addEventListener('click', () => {
+            initAudio();
+            document.body.requestPointerLock();
+            document.getElementById('main-menu').style.display = 'none';
+            isPaused = false;
             
-            if (isPaused) {
-                instructions.style.display = 'none'; 
-                isPaused = false;
-                if (!gameActive && !cutsceneActive && cutsceneElapsedTime === 0) { startCutsceneSequence(); }
+            // Adjust environment base styling to fit settings parameters before frame start
+            if (flashlightModeEnabled) {
+                globalAmbientLight.intensity = 0.05;
+                roomLight.intensity = 0.0;
+                flashlightLight.intensity = 3.0;
+            } else {
+                globalAmbientLight.intensity = 1.0;
+                roomLight.intensity = 1.8;
+                flashlightLight.intensity = 0.0;
             }
+
+            if (!gameActive && !cutsceneActive && cutsceneElapsedTime === 0) { startCutsceneSequence(); }
+        });
+
+        document.getElementById('btn-open-settings').addEventListener('click', () => {
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('settings-menu').style.display = 'block';
+        });
+
+        document.getElementById('btn-close-settings').addEventListener('click', () => {
+            selectedDifficulty = document.getElementById('setting-difficulty').value;
+            flashlightModeEnabled = document.getElementById('setting-flashlight').checked;
+            document.getElementById('settings-menu').style.display = 'none';
+            document.getElementById('main-menu').style.display = 'block';
+        });
+
+        document.getElementById('btn-open-credits').addEventListener('click', () => {
+            document.getElementById('main-menu').style.display = 'none';
+            const frame = document.getElementById('credits-frame');
+            const scroller = document.getElementById('credits-scroller');
+            frame.style.display = 'flex';
+            creditsActive = true;
+            creditsY = window.innerHeight; 
+            scroller.style.top = creditsY + 'px';
+        });
+
+        // Click on screen anywhere during credits to return safely to system menu
+        document.getElementById('credits-frame').addEventListener('click', () => {
+            creditsActive = false;
+            document.getElementById('credits-frame').style.display = 'none';
+            document.getElementById('main-menu').style.display = 'block';
         });
 
         document.addEventListener('pointerlockchange', () => {
             if (document.pointerLockElement === document.body) {
-                instructions.style.display = 'none'; isPaused = false; 
+                isPaused = false; 
                 if (!gameActive && !cutsceneActive && cutsceneElapsedTime === 0 && !hospitalModeActive) { startCutsceneSequence(); }
                 else if (gameActive && !hospitalModeActive) { spawnThreatCycle(pauseTimeRemaining > 0 ? pauseTimeRemaining : null); startCountdownProcessor(); }
                 else if (hospitalModeActive) { startCountdownProcessor(); }
@@ -553,7 +698,11 @@
                 yaw = 0; pitch = 0;
                 camera.position.set(0, 0.5, 0); camera.rotation.set(-Math.PI / 10, 0, 0);
                 scene.background.setHex(0x1a1215); scene.fog.color.setHex(0x1a1215); scene.fog.density = 0.08;
+                
+                // Normal lighting overrides inside hospital loop sequence
                 roomLight.color.setHex(0xffaaee); roomLight.intensity = 1.0; roomLight.position.set(0, 3.2, -2.5); globalAmbientLight.color.setHex(0x44333b);
+                flashlightLight.intensity = 0.0; 
+                
                 hospitalModeActive = true;
 
                 setTimeout(() => {
@@ -639,7 +788,13 @@
 
         function spawnThreatCycle(customDelay = null) {
             if (!gameActive || isPaused || hospitalModeActive) return;
-            let nextSpawnDelay = customDelay !== null ? customDelay : (2000 + Math.random() * 3000); 
+            
+            // --- DIFFICULTY CALCULATION MATRIX ---
+            let frequencyMultiplier = 1.0;
+            if (selectedDifficulty === "easy") frequencyMultiplier = 1.6;
+            if (selectedDifficulty === "hard") frequencyMultiplier = 0.5;
+
+            let nextSpawnDelay = customDelay !== null ? customDelay : ((2000 + Math.random() * 3000) * frequencyMultiplier); 
             pauseTimeRemaining = nextSpawnDelay;
 
             activeSpawnTimeout = setTimeout(() => {
@@ -650,6 +805,10 @@
                     if (roll < 0.4) { currentMonsterType = "twitcher"; currentBaseSpeed = 0.014; } 
                     else if (roll < 0.7) { currentMonsterType = "lurker"; currentBaseSpeed = 0.0035; } 
                     else { currentMonsterType = "stalker"; currentBaseSpeed = 0.007; }
+
+                    // Speed up dynamic variables slightly for harder structures
+                    if (selectedDifficulty === "hard") currentBaseSpeed *= 1.35;
+                    if (selectedDifficulty === "easy") currentBaseSpeed *= 0.75;
                 }
                 pauseTimeRemaining = 0; spawnThreatCycle(); 
             }, nextSpawnDelay);
@@ -658,6 +817,20 @@
         // --- Core Simulation Loop Frame ---
         function animate() {
             requestAnimationFrame(animate);
+
+            // Credits Transformation Engine
+            if (creditsActive) {
+                creditsY -= 1.3; 
+                const scroller = document.getElementById('credits-scroller');
+                scroller.style.top = creditsY + 'px';
+                
+                // Reset frame to menu screen once scroll boundary is passed completely
+                if (creditsY < -450) {
+                    creditsActive = false;
+                    document.getElementById('credits-frame').style.display = 'none';
+                    document.getElementById('main-menu').style.display = 'block';
+                }
+            }
 
             if (cutsceneActive && !isPaused) {
                 cutsceneElapsedTime += 0.016; 
@@ -716,16 +889,18 @@
                 
                 if (spacePressed) {
                     powerLevel = Math.min(100, powerLevel + 0.6); 
-                    
-                    if (generatorWheel) {
-                        generatorWheel.rotation.z += 0.18; 
-                    }
-                    if (Math.random() < 0.25) {
-                        playTone(85 + Math.sin(Date.now() * 0.1) * 10, 0.04, 'sawtooth', 0.04);
-                    }
+                    if (generatorWheel) { generatorWheel.rotation.z += 0.18; }
+                    if (Math.random() < 0.25) { playTone(85 + Math.sin(Date.now() * 0.1) * 10, 0.04, 'sawtooth', 0.04); }
                 }
 
                 camera.rotation.set(pitch, yaw, 0, 'YXZ');
+
+                // Mirror flashlight position vectors to point completely forward alongside camera lens matrices
+                if(flashlightModeEnabled) {
+                    flashlightLight.position.copy(camera.position);
+                    let vectorDir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+                    flashlightLight.target.position.copy(camera.position).add(vectorDir);
+                }
 
                 document.getElementById('power-bar').style.width = `${powerLevel}%`;
                 document.getElementById('power-label').innerText = `AUXILIARY POWER: ${Math.floor(powerLevel)}%`;
@@ -733,9 +908,13 @@
                 if (powerLevel <= 0) {
                     leftDoorClosed = false; rightDoorClosed = false;
                     document.getElementById('status-left').innerText = "LEFT: DEAD"; document.getElementById('status-right').innerText = "RIGHT: DEAD";
-                    roomLight.intensity = THREE.MathUtils.lerp(roomLight.intensity, 0.0, 0.2); globalAmbientLight.color.setHex(0x050505);
+                    roomLight.intensity = 0; 
+                    flashlightLight.intensity = 0;
+                    globalAmbientLight.color.setHex(0x050505);
                 } else {
-                    roomLight.intensity = THREE.MathUtils.lerp(roomLight.intensity, 1.8, 0.1);
+                    if (!flashlightModeEnabled) {
+                        roomLight.intensity = THREE.MathUtils.lerp(roomLight.intensity, 1.8, 0.1);
+                    }
                 }
 
                 if (leftDoorClosed && powerLevel > 0) { leftDoor.position.y = THREE.MathUtils.lerp(leftDoor.position.y, 1.6, 0.15); } 
@@ -803,11 +982,10 @@
             monsterActive = false; monsterRoot.position.set(0, -10, 0);
             camera.position.set(0, 0.5, 1.8); camera.rotation.set(-Math.PI / 6, 0, 0);
 
-            // Re-established 5 minute baselines on execution loop triggers
             powerLevel = 100.0; timeRemainingSeconds = 300; 
             document.getElementById('countdown-timer').innerText = "05:00";
             
-            leftDoorClosed = false; rightDoorClosed = false; spacePressed = false; isPaused = false; cutsceneActive = false; hospitalModeActive = false;
+            leftDoorClosed = false; rightDoorClosed = false; spacePressed = false; isPaused = true; cutsceneActive = false; hospitalModeActive = false;
             cutsceneElapsedTime = 0; yaw = 0; pitch = 0;
             keys.w = false; keys.a = false; keys.s = false; keys.d = false;
 
@@ -815,7 +993,8 @@
             document.getElementById('status-right').innerText = "RIGHT: OPEN"; document.getElementById('status-right').className = "";
             document.getElementById('status-generator').innerText = "GEN: IDLE"; document.getElementById('status-generator').className = "";
 
-            document.body.requestPointerLock();
+            // Return smoothly back to the main user interface screen menu
+            document.getElementById('main-menu').style.display = 'block';
         }
 
         document.getElementById('btn-restart').addEventListener('click', executeCompleteSystemReset);
