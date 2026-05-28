@@ -361,8 +361,8 @@
         // HARDCODED AUDIO LINKS (LOCK SCRIPT HERE)
         // ==========================================
         let customUrls = { 
-            jumpscare: "YOUR_JUMPSCARE_AUDIO_URL_HERE", 
-            door: "YOUR_DOOR_AUDIO_URL_HERE", 
+            jumpscare: "https://cdn.pixabay.com/download/audio/2026/03/30/audio_9982299230.mp3?filename=sound_effects75-main-jumpscare-sound-511350.mp3", 
+            door: "https://cdn.pixabay.com/download/audio/2024/04/01/audio_8318f729e2.mp3?filename=universfield-opening-metal-door-199581.mp3", 
             crank: "YOUR_CRANK_AUDIO_URL_HERE" 
         };
         let audioObjects = { jumpscare: null, door: null, crank: null };
@@ -696,6 +696,7 @@
             document.getElementById('main-menu').style.display = 'block';
         });
 
+        document.pragma_lock = false;
         document.addEventListener('pointerlockchange', () => {
             if (document.pointerLockElement === document.body) {
                 if (jumpscareActive) return;
