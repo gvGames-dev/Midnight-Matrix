@@ -11,7 +11,7 @@
             overflow: hidden;
             width: 100%;
             height: 100%;
-            background-color: #000;
+            background-color: #000 !important;
             font-family: 'Courier New', Courier, monospace;
             user-select: none;
         }
@@ -25,6 +25,18 @@
             z-index: 1;
         }
 
+        /* --- FORCED MATRIX BACKGROUND CANVAS --- */
+        #menu-matrix-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+            display: block;
+            z-index: 5;
+            background: #000000;
+        }
+
         /* --- UI Menu Panels --- */
         .menu-panel {
             position: absolute;
@@ -33,28 +45,29 @@
             transform: translate(-50%, -50%);
             color: #fff;
             text-align: center;
-            background: rgba(5, 5, 5, 0.95);
+            background: rgba(3, 10, 3, 0.9) !important;
             padding: 30px;
             border: 2px solid #33ff33;
             z-index: 20;
-            box-shadow: 0 0 30px rgba(0,255,0,0.3);
+            box-shadow: 0 0 40px rgba(0, 255, 0, 0.25);
             width: 480px;
             max-height: 90vh;
             overflow-y: auto;
             box-sizing: border-box;
+            backdrop-filter: blur(4px);
         }
 
         h2 {
             margin-top: 0;
             color: #33ff33;
-            letter-spacing: 2px;
-            text-shadow: 0 0 8px rgba(51, 255, 51, 0.4);
+            letter-spacing: 4px;
+            text-shadow: 0 0 12px rgba(51, 255, 51, 0.6);
         }
 
         .menu-btn {
             display: block;
             width: 100%;
-            background: transparent;
+            background: rgba(0, 20, 0, 0.4);
             border: 1px solid #33ff33;
             color: #33ff33;
             font-family: inherit;
@@ -71,7 +84,7 @@
         .menu-btn:hover {
             background: #33ff33;
             color: #000;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.6);
         }
 
         .setting-row {
@@ -191,7 +204,7 @@
         .active-status { color: #ff3333 !important; font-weight: bold; }
         .gen-status { color: #33ffff !important; font-weight: bold; }
 
-        /* --- Bottom Right Controls Frame --- */
+        /* --- Controls Legend --- */
         #controls-legend {
             display: none;
             position: absolute;
@@ -212,194 +225,46 @@
             overflow-y: auto;
             scrollbar-width: none;
             opacity: 1;
-            transition: opacity 2.0s ease-in-out; /* Smooth fade effect */
+            transition: opacity 2.0s ease-in-out;
         }
         
-        #controls-legend::-webkit-scrollbar {
-            display: none;
-        }
-
-        .legend-title {
-            font-weight: bold;
-            font-size: 12px;
-            margin-bottom: 6px;
-            border-bottom: 1px solid #33ff33;
-            padding-bottom: 4px;
-            letter-spacing: 1px;
-            text-align: center;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin: 6px 0;
-        }
-
-        .mouse-icon-container {
-            width: 38px;
-            display: flex;
-            justify-content: center;
-            margin-right: 10px;
-            flex-shrink: 0;
-        }
+        #controls-legend::-webkit-scrollbar { display: none; }
+        .legend-title { font-weight: bold; font-size: 12px; margin-bottom: 6px; border-bottom: 1px solid #33ff33; padding-bottom: 4px; letter-spacing: 1px; text-align: center; }
+        .legend-item { display: flex; align-items: center; margin: 6px 0; }
+        .mouse-icon-container { width: 38px; display: flex; justify-content: center; margin-right: 10px; flex-shrink: 0; }
 
         .mouse-graphic {
-            width: 16px;
-            height: 26px;
-            border: 1.5px solid #33ff33;
-            border-radius: 8px;
-            position: relative;
-            background: rgba(51, 255, 51, 0.05);
+            width: 16px; height: 26px; border: 1.5px solid #33ff33; border-radius: 8px; position: relative; background: rgba(51, 255, 51, 0.05);
         }
 
-        .mouse-graphic::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 1.5px;
-            height: 10px;
-            background: #33ff33;
-            opacity: 0.4;
-        }
-
-        .mouse-graphic .click-zone {
-            position: absolute;
-            top: 0;
-            width: 50%;
-            height: 10px;
-            background: #33ff33;
-            opacity: 0;
-        }
-
-        .mouse-graphic .click-left {
-            left: 0;
-            border-top-left-radius: 6px;
-        }
-
-        .mouse-graphic .click-right {
-            right: 0;
-            border-top-right-radius: 6px;
-        }
-
-        .mouse-graphic .scroll-wheel {
-            position: absolute;
-            top: 3px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 3px;
-            height: 5px;
-            background: #33ff33;
-            border-radius: 1px;
-        }
-
+        .mouse-graphic::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 1.5px; height: 10px; background: #33ff33; opacity: 0.4; }
+        .mouse-graphic .click-zone { position: absolute; top: 0; width: 50%; height: 10px; background: #33ff33; opacity: 0; }
+        .mouse-graphic .click-left { left: 0; border-top-left-radius: 6px; }
+        .mouse-graphic .click-right { right: 0; border-top-right-radius: 6px; }
+        .mouse-graphic .scroll-wheel { position: absolute; top: 3px; left: 50%; transform: translateX(-50%); width: 3px; height: 5px; background: #33ff33; border-radius: 1px; }
         .mouse-graphic.active-left .click-left { opacity: 0.85; }
         .mouse-graphic.active-right .click-right { opacity: 0.85; }
-        .mouse-graphic.active-middle .scroll-wheel { 
-            background: #ff33aa; 
-            box-shadow: 0 0 5px #ff33aa;
-            transform: translateX(-50%) scale(1.1);
-        }
-
-        .keyboard-icon {
-            display: inline-block;
-            width: 36px;
-            text-align: center;
-            background: rgba(51, 255, 51, 0.15);
-            border: 1px solid #33ff33;
-            border-radius: 3px;
-            padding: 2px 0;
-            font-weight: bold;
-            font-size: 9px;
-        }
-
-        .legend-text {
-            color: #bbbbbb;
-            line-height: 1.25;
-        }
+        .mouse-graphic.active-middle .scroll-wheel { background: #ff33aa; box-shadow: 0 0 5px #ff33aa; transform: translateX(-50%) scale(1.1); }
+        .keyboard-icon { display: inline-block; width: 36px; text-align: center; background: rgba(51, 255, 51, 0.15); border: 1px solid #33ff33; border-radius: 3px; padding: 2px 0; font-weight: bold; font-size: 9px; }
+        .legend-text { color: #bbbbbb; line-height: 1.25; }
 
         #game-over-screen {
-            display: none;
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #0d0202;
-            color: #ff3333;
-            z-index: 50;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            font-size: 24px;
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #0d0202; color: #ff3333; z-index: 50; justify-content: center; align-items: center; flex-direction: column; font-size: 24px;
         }
 
-        .diagnostic-box {
-            background: #1a0505;
-            border: 1px dashed #ff3333;
-            padding: 15px;
-            margin-top: 20px;
-            font-size: 13px;
-            color: #ffaa00;
-            text-align: left;
-            width: 500px;
-            max-width: 90%;
-            line-height: 1.4;
-        }
-
-        #blink-vignette {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #000;
-            z-index: 15;
-            pointer-events: none;
-            opacity: 1;
-            transition: opacity 1.5s ease-in-out;
-        }
-
-        #jumpscare-overlay {
-            display: none;
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 28;
-            pointer-events: none;
-        }
-
-        #revival-ui {
-            display: none;
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: transparent;
-            z-index: 40;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: #ffffff;
-            font-family: inherit;
-        }
-
-        #revival-bg-overlay {
-            display: none;
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(20, 10, 25, 0.6);
-            z-index: 39;
-            pointer-events: none;
-            transition: background-color 0.1s linear;
-        }
-
+        .diagnostic-box { background: #1a0505; border: 1px dashed #ff3333; padding: 15px; margin-top: 20px; font-size: 13px; color: #ffaa00; text-align: left; width: 500px; max-width: 90%; line-height: 1.4; }
+        #blink-vignette { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 15; pointer-events: none; opacity: 1; transition: opacity 1.5s ease-in-out; }
+        #jumpscare-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 28; pointer-events: none; }
+        #revival-bg-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(20, 10, 25, 0.6); z-index: 39; pointer-events: none; transition: background-color 0.1s linear; }
+        #revival-ui { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 40; flex-direction: column; justify-content: center; align-items: center; color: #ffffff; font-family: inherit; }
         #revival-prompt { font-size: 24px; font-weight: bold; letter-spacing: 2px; margin-bottom: 20px; text-transform: uppercase; text-shadow: 0 0 10px rgba(255,255,255,0.7); }
         #revival-counter { font-size: 18px; color: #ff66cc; font-weight: bold; margin-top: 15px; text-shadow: 0 0 8px rgba(0,0,0,0.8); }
         #revival-strikes { font-size: 16px; color: #ff3333; font-weight: bold; margin-top: 5px; text-shadow: 0 0 8px rgba(0,0,0,0.8); }
         #revival-heart { font-size: 120px; color: #ff3e6c; display: inline-block; user-select: none; transition: transform 0.1s ease; filter: drop-shadow(0 0 15px rgba(255,62,108,0.6)); }
         #revival-heart.shake { animation: heartPulseShake 0.15s ease-in-out; }
-
-        .spacebar-graphic {
-            margin-top: 25px; display: inline-block; padding: 12px 55px; border: 3px solid #ffffff; border-radius: 8px; font-size: 16px; font-weight: bold; letter-spacing: 3px; background: rgba(255, 255, 255, 0.1); box-shadow: 0 5px 0 #bbbbbb; transition: all 0.05s ease;
-        }
+        .spacebar-graphic { margin-top: 25px; display: inline-block; padding: 12px 55px; border: 3px solid #ffffff; border-radius: 8px; font-size: 16px; font-weight: bold; letter-spacing: 3px; background: rgba(255, 255, 255, 0.1); box-shadow: 0 5px 0 #bbbbbb; transition: all 0.05s ease; }
         .spacebar-graphic.pressed { transform: translateY(5px); box-shadow: 0 0px 0 #bbbbbb; background: rgba(255, 255, 255, 0.3); }
-
-        #hospital-hud {
-            display: none; position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); color: #ffbbee; background: rgba(30, 15, 25, 0.85); border: 1px solid #ff66cc; padding: 10px 20px; font-size: 14px; z-index: 10; pointer-events: none; text-align: center; border-radius: 3px; box-shadow: 0 0 10px rgba(255,102,204,0.3);
-        }
+        #hospital-hud { display: none; position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); color: #ffbbee; background: rgba(30, 15, 25, 0.85); border: 1px solid #ff66cc; padding: 10px 20px; font-size: 14px; z-index: 10; pointer-events: none; text-align: center; border-radius: 3px; box-shadow: 0 0 10px rgba(255,102,204,0.3); }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
@@ -408,6 +273,8 @@
     <div id="blink-vignette"></div>
     <div id="jumpscare-overlay"></div>
     <div id="revival-bg-overlay"></div>
+
+    <canvas id="menu-matrix-canvas"></canvas>
 
     <div id="revival-ui">
         <div id="revival-prompt">STABILIZE HEARTBEAT</div>
@@ -419,7 +286,7 @@
 
     <div id="main-menu" class="menu-panel">
         <h2>SYSTEM OVERLOAD</h2>
-        <p style="font-size: 11px; color: #888; margin-bottom: 20px;">HYBRID GENERATOR ENGAGED</p>
+        <p style="font-size: 11px; color: #33ff33; margin-bottom: 20px; letter-spacing: 1px;">HYBRID GENERATOR CO-ENGAGED</p>
         <button class="menu-btn" id="btn-play-game">Start Simulation</button>
         <button class="menu-btn" id="btn-open-settings">Configuration</button>
         <button class="menu-btn" id="btn-open-credits">Credits</button>
@@ -478,14 +345,11 @@
 
     <div id="hud-container">
         <div id="countdown-timer">05:00</div>
-        
         <div style="color: #33ff33; font-size: 11px; font-weight: bold; text-align:left;" id="power-label">AUXILIARY POWER: 100%</div>
         <div class="bar-container">
             <div id="power-bar" class="bar-fill"></div>
         </div>
-
         <div id="puppet-warning-hud">⚠️ WARNING: PUPPET BOX CRITICAL ⚠️</div>
-
         <div id="status-indicators">
             <span id="status-left">LEFT: OPEN</span>
             <span id="status-generator">SYSTEMS: IDLE</span>
@@ -495,51 +359,30 @@
 
     <div id="controls-legend">
         <div class="legend-title">SYSTEM CONTROLS</div>
-        
         <div class="legend-item">
             <div class="mouse-icon-container">
-                <div class="mouse-graphic active-left">
-                    <div class="click-zone click-left"></div>
-                    <div class="click-zone click-right"></div>
-                    <div class="scroll-wheel"></div>
-                </div>
+                <div class="mouse-graphic active-left"><div class="click-zone click-left"></div><div class="click-zone click-right"></div><div class="scroll-wheel"></div></div>
             </div>
             <span class="legend-text">Toggle left corridor security gate</span>
         </div>
-
         <div class="legend-item">
             <div class="mouse-icon-container">
-                <div class="mouse-graphic active-right">
-                    <div class="click-zone click-right"></div>
-                    <div class="click-zone click-right"></div>
-                    <div class="scroll-wheel"></div>
-                </div>
+                <div class="mouse-graphic active-right"><div class="click-zone click-right"></div><div class="click-zone click-right"></div><div class="scroll-wheel"></div></div>
             </div>
             <span class="legend-text">Toggle right corridor security gate</span>
         </div>
-
         <div class="legend-item">
             <div class="mouse-icon-container">
-                <div class="mouse-graphic active-middle">
-                    <div class="click-zone click-left"></div>
-                    <div class="click-zone click-right"></div>
-                    <div class="scroll-wheel"></div>
-                </div>
+                <div class="mouse-graphic active-middle"><div class="click-zone click-left"></div><div class="click-zone click-right"></div><div class="scroll-wheel"></div></div>
             </div>
             <span class="legend-text">Hold down and Scroll wheel to face station and rewind Puppet Box</span>
         </div>
-
         <div class="legend-item">
-            <div class="mouse-icon-container">
-                <span class="keyboard-icon">SPACE</span>
-            </div>
+            <div class="mouse-icon-container"><span class="keyboard-icon">SPACE</span></div>
             <span class="legend-text">Hold down to recharge main battery station</span>
         </div>
-
         <div class="legend-item" id="hospital-controls" style="display:none;">
-            <div class="mouse-icon-container">
-                <span class="keyboard-icon">WASD</span>
-            </div>
+            <div class="mouse-icon-container"><span class="keyboard-icon">WASD</span></div>
             <span class="legend-text">Navigate local environment grid boundaries</span>
         </div>
     </div>
@@ -573,7 +416,7 @@
         let jumpscareTimer = 0;
         let jumpscareTimeElapsed = 0; 
 
-        // --- Look Behind Cutscene Interpolation Engine ---
+        // --- Look Behind Cutscene Engine ---
         let lookBehindProgress = 0; 
         let lookBehindDirection = 0; 
 
@@ -589,17 +432,137 @@
         // --- Angel Visual Matrices ---
         let angelGroup;
         const angelsArray = [];
-
         let cutsceneElapsedTime = 0; 
         const targetCamPos = new THREE.Vector3(0, 1.6, 0);
 
-        // --- Configuration Engine Variables ---
+        // --- Configuration Variables ---
         let timeRemainingSeconds = 300; 
         let timerIntervalId = null;
         let selectedDifficulty = "normal";
         let flashlightModeEnabled = false;
         let puppetBoxMechanicEnabled = true;
-        let controlsAlreadyFadedOut = false; // Flag to track layout behavior state
+        let controlsAlreadyFadedOut = false; 
+
+        // --- Forced Matrix Background Canvas Animation Engine ---
+        const matrixCanvas = document.getElementById('menu-matrix-canvas');
+        const matrixCtx = matrixCanvas.getContext('2d');
+        let matrixColumns = [];
+        const matrixFontSize = 14;
+        const matrixCharacters = "ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ10101001XYZ#$@%&+-/*<>".split("");
+
+        // Menu Monster Entities Matrix Positioning Array
+        let menuMonsters = [
+            { x: 200, y: 250, size: 65, targetX: 450, targetY: 500, speed: 1.8, type: "stalker", glitchTimer: 0 },
+            { x: 900, y: 450, size: 85, targetX: 550, targetY: 150, speed: 2.5, type: "twitcher", glitchTimer: 0 },
+            { x: 1300, y: 200, size: 55, targetX: 850, targetY: 650, speed: 1.1, type: "phantasm", glitchTimer: 0 }
+        ];
+
+        function resizeMatrixCanvas() {
+            matrixCanvas.width = window.innerWidth;
+            matrixCanvas.height = window.innerHeight;
+            const cols = Math.floor(matrixCanvas.width / matrixFontSize) + 1;
+            matrixColumns = Array(cols).fill(0).map(() => Math.random() * -100);
+        }
+        window.addEventListener('resize', resizeMatrixCanvas);
+        resizeMatrixCanvas();
+
+        function renderMatrixMenuBackground() {
+            // Instantly drop matrix loop execution context if the game simulation begins
+            if (gameActive || cutsceneActive || hospitalModeActive || jumpscareActive || revivalActive) {
+                matrixCanvas.style.display = 'none';
+                return;
+            }
+            matrixCanvas.style.display = 'block';
+
+            // Slow visual trail frame layout fade back to absolute black
+            matrixCtx.fillStyle = 'rgba(0, 0, 0, 0.09)';
+            matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+
+            // --- Render Dynamic Background Silhouettes ---
+            menuMonsters.forEach(m => {
+                let dx = m.targetX - m.x;
+                let dy = m.targetY - m.y;
+                let dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 15) {
+                    m.targetX = Math.random() * matrixCanvas.width;
+                    m.targetY = Math.random() * matrixCanvas.height;
+                } else {
+                    m.x += (dx / dist) * m.speed;
+                    m.y += (dy / dist) * m.speed;
+                }
+
+                m.glitchTimer += 0.06;
+                let glitchOffset = 0;
+                if (Math.sin(m.glitchTimer * 6) > 0.75 && Math.random() < 0.5) {
+                    glitchOffset = (Math.random() - 0.5) * 40;
+                }
+
+                matrixCtx.save();
+                matrixCtx.translate(m.x + glitchOffset, m.y);
+                
+                matrixCtx.fillStyle = 'rgba(8, 28, 8, 0.6)';
+                matrixCtx.strokeStyle = 'rgba(51, 255, 51, 0.25)';
+                matrixCtx.lineWidth = 2;
+                
+                if (m.type === "twitcher") {
+                    let scalePulse = 1 + Math.sin(m.glitchTimer * 5) * 0.25;
+                    matrixCtx.fillRect(-m.size/2, -m.size * scalePulse, m.size, m.size * 2);
+                    matrixCtx.strokeRect(-m.size/2, -m.size * scalePulse, m.size, m.size * 2);
+                    
+                    matrixCtx.fillStyle = Math.random() > 0.4 ? '#ff2222' : '#ffffff';
+                    matrixCtx.beginPath(); matrixCtx.arc(-16, -m.size/2, 7, 0, Math.PI*2); matrixCtx.fill();
+                    matrixCtx.beginPath(); matrixCtx.arc(16, -m.size/2, 7, 0, Math.PI*2); matrixCtx.fill();
+                } else if (m.type === "phantasm") {
+                    matrixCtx.fillStyle = 'rgba(35, 2, 45, 0.5)';
+                    matrixCtx.beginPath();
+                    matrixCtx.moveTo(0, -m.size * 1.2);
+                    matrixCtx.lineTo(m.size/1.8, m.size);
+                    matrixCtx.lineTo(-m.size/1.8, m.size);
+                    matrixCtx.closePath();
+                    matrixCtx.fill();
+                    matrixCtx.stroke();
+                    
+                    matrixCtx.fillStyle = '#d400ff';
+                    matrixCtx.shadowBlur = 20; matrixCtx.shadowColor = '#cc00ff';
+                    matrixCtx.fillRect(-12, -12, 7, 14); matrixCtx.fillRect(8, -12, 7, 14);
+                } else {
+                    matrixCtx.fillRect(-m.size/2, -m.size, m.size, m.size * 1.6);
+                    matrixCtx.strokeRect(-m.size/2, -m.size, m.size, m.size * 1.6);
+                    
+                    matrixCtx.fillStyle = '#ff1111';
+                    matrixCtx.shadowBlur = 12; matrixCtx.shadowColor = '#ff0000';
+                    matrixCtx.beginPath(); matrixCtx.arc(-14, -m.size/3, 8, 0, Math.PI*2); matrixCtx.fill();
+                    matrixCtx.beginPath(); matrixCtx.arc(14, -m.size/3, 8, 0, Math.PI*2); matrixCtx.fill();
+                }
+                matrixCtx.restore();
+                matrixCtx.shadowBlur = 0; // Restore standard profile
+            });
+
+            // --- Render Cascade Streams ---
+            matrixCtx.fillStyle = '#33ff33';
+            matrixCtx.font = matrixFontSize + 'px Courier New';
+
+            matrixColumns.forEach((y, index) => {
+                const text = matrixCharacters[Math.floor(Math.random() * matrixCharacters.length)];
+                const x = index * matrixFontSize;
+
+                if (Math.random() > 0.98) {
+                    matrixCtx.fillStyle = '#ffffff';
+                } else {
+                    matrixCtx.fillStyle = '#22cc22';
+                }
+
+                matrixCtx.fillText(text, x, y);
+
+                if (y > matrixCanvas.height && Math.random() > 0.98) {
+                    matrixColumns[index] = 0;
+                } else {
+                    matrixColumns[index] = y + matrixFontSize;
+                }
+            });
+
+            requestAnimationFrame(renderMatrixMenuBackground);
+        }
 
         // --- Audio Assets ---
         let customUrls = { 
@@ -612,7 +575,7 @@
         };
         let audioObjects = { jumpscare: null, door: null, revivalSuccess: null, boxSqueak: null, creepyMusicBox: null, phantasmZoom: null };
 
-        // --- Game System Mechanics ---
+        // --- Game Mechanics State Trackers ---
         let leftDoorClosed = false;
         let rightDoorClosed = false;
         let spacePressed = false;
@@ -623,7 +586,6 @@
         let puppetBoxKillTimer = 0;
         let mouseScrolledThisFrame = false;
         
-        // --- Concurrent Multi-Monster Tracking Systems ---
         let monsters = {
             left: { active: false, progress: 0, type: "stalker", speed: 0.007, root: null, eyeLeft: null, eyeRight: null, audioTriggered: false },
             right: { active: false, progress: 0, type: "stalker", speed: 0.007, root: null, eyeLeft: null, eyeRight: null, audioTriggered: false }
@@ -631,45 +593,25 @@
         
         let activeSpawnTimeout = null;
         let pauseTimeRemaining = 0; 
-
-        // Looking Matrix
         let yaw = 0, pitch = 0;
         const maxYaw = Math.PI / 2.3; 
         const maxPitch = Math.PI / 3.5;
 
-        // Keyboard Elements
         const keys = { w: false, a: false, s: false, d: false };
         let playerVelocity = new THREE.Vector3();
         const moveSpeed = 0.05;
-
-        // Audio Anchor
         let audioCtx = null;
 
         function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx && audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+            if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+            if (audioCtx && audioCtx.state === 'suspended') { audioCtx.resume(); }
             
             if (!audioObjects.jumpscare) { audioObjects.jumpscare = new Audio(customUrls.jumpscare); audioObjects.jumpscare.volume = 0.9; }
             if (!audioObjects.door) { audioObjects.door = new Audio(customUrls.door); audioObjects.door.volume = 0.5; }
             if (!audioObjects.revivalSuccess) { audioObjects.revivalSuccess = new Audio(customUrls.revivalSuccess); audioObjects.revivalSuccess.volume = 0.8; }
-            if (!audioObjects.boxSqueak) { 
-                audioObjects.boxSqueak = new Audio(customUrls.boxSqueak); 
-                audioObjects.boxSqueak.volume = 0.5; 
-                audioObjects.boxSqueak.loop = true; 
-            }
-            if (!audioObjects.creepyMusicBox) { 
-                audioObjects.creepyMusicBox = new Audio(customUrls.creepyMusicBox); 
-                audioObjects.creepyMusicBox.volume = 0.8; 
-                audioObjects.creepyMusicBox.loop = true; 
-            }
-            if (!audioObjects.phantasmZoom) {
-                audioObjects.phantasmZoom = new Audio(customUrls.phantasmZoom);
-                audioObjects.phantasmZoom.volume = 0.7;
-            }
+            if (!audioObjects.boxSqueak) { audioObjects.boxSqueak = new Audio(customUrls.boxSqueak); audioObjects.boxSqueak.volume = 0.5; audioObjects.boxSqueak.loop = true; }
+            if (!audioObjects.creepyMusicBox) { audioObjects.creepyMusicBox = new Audio(customUrls.creepyMusicBox); audioObjects.creepyMusicBox.volume = 0.8; audioObjects.creepyMusicBox.loop = true; }
+            if (!audioObjects.phantasmZoom) { audioObjects.phantasmZoom = new Audio(customUrls.phantasmZoom); audioObjects.phantasmZoom.volume = 0.7; }
         }
 
         function triggerCustomPlay(key) {
@@ -747,8 +689,7 @@
             dollWallTexture.wrapS = THREE.RepeatWrapping; dollWallTexture.wrapT = THREE.RepeatWrapping;
 
             puppetBoxCanvas = document.createElement('canvas');
-            puppetBoxCanvas.width = 256;
-            puppetBoxCanvas.height = 256;
+            puppetBoxCanvas.width = 256; puppetBoxCanvas.height = 256;
             puppetBoxContext = puppetBoxCanvas.getContext('2d');
             puppetBoxTexture = new THREE.CanvasTexture(puppetBoxCanvas);
             updatePuppetBoxTextureFace();
@@ -756,7 +697,6 @@
 
         function updatePuppetBoxTextureFace() {
             if (!puppetBoxContext) return;
-            
             puppetBoxContext.fillStyle = '#8a1c1c';
             puppetBoxContext.fillRect(0, 0, 256, 256);
 
@@ -787,7 +727,6 @@
             puppetBoxContext.fillStyle = '#ffffff';
             puppetBoxContext.font = 'bold 20px Courier New';
             puppetBoxContext.fillText(Math.floor(puppetBoxLevel) + "%", 128, 205);
-
             puppetBoxTexture.needsUpdate = true;
         }
 
@@ -818,42 +757,19 @@
             const whiteMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.6, wireframe: true });
             const glowMat = new THREE.MeshBasicMaterial({ color: 0xffe6ff, transparent: true, opacity: 0.4 });
             
-            const body = new THREE.Mesh(new THREE.ConeGeometry(0.3, 1.2, 6), whiteMat);
-            body.position.y = 0.6;
-            angel.add(body);
-            
-            const head = new THREE.Mesh(new THREE.SphereGeometry(0.15, 6, 6), glowMat);
-            head.position.y = 1.3;
-            angel.add(head);
+            const body = new THREE.Mesh(new THREE.ConeGeometry(0.3, 1.2, 6), whiteMat); body.position.y = 0.6; angel.add(body);
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.15, 6, 6), glowMat); head.position.y = 1.3; angel.add(head);
             
             const halo = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.02, 4, 8), new THREE.MeshBasicMaterial({ color: 0xffd700, transparent: true, opacity: 0.7 }));
-            halo.position.set(0, 1.5, 0);
-            halo.rotation.x = Math.PI / 2;
-            angel.add(halo);
+            halo.position.set(0, 1.5, 0); halo.rotation.x = Math.PI / 2; angel.add(halo);
 
-            const leftWingGroup = new THREE.Group();
-            leftWingGroup.position.set(0.15, 0.8, -0.05);
-            const leftWingGeom = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.4, 0.02), whiteMat);
-            leftWingGeom.position.x = 0.4;
-            leftWingGroup.add(leftWingGeom);
-            angel.add(leftWingGroup);
+            const leftWingGroup = new THREE.Group(); leftWingGroup.position.set(0.15, 0.8, -0.05);
+            const leftWingGeom = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.4, 0.02), whiteMat); leftWingGeom.position.x = 0.4; leftWingGroup.add(leftWingGeom); angel.add(leftWingGroup);
 
-            const rightWingGroup = new THREE.Group();
-            rightWingGroup.position.set(-0.15, 0.8, -0.05);
-            const rightWingGeom = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.4, 0.02), whiteMat);
-            rightWingGeom.position.x = -0.4;
-            rightWingGroup.add(rightWingGeom);
-            angel.add(rightWingGroup);
+            const rightWingGroup = new THREE.Group(); rightWingGroup.position.set(-0.15, 0.8, -0.05);
+            const rightWingGeom = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.4, 0.02), whiteMat); rightWingGeom.position.x = -0.4; rightWingGroup.add(rightWingGeom); angel.add(rightWingGroup);
 
-            return {
-                mesh: angel,
-                leftWing: leftWingGroup,
-                rightWing: rightWingGroup,
-                seed: Math.random() * 100,
-                speedY: 0.01 + Math.random() * 0.02,
-                speedX: (Math.random() - 0.5) * 0.02,
-                rotSpeed: (Math.random() - 0.5) * 0.01
-            };
+            return { mesh: angel, leftWing: leftWingGroup, rightWing: rightWingGroup, seed: Math.random() * 100, speedY: 0.01 + Math.random() * 0.02, speedX: (Math.random() - 0.5) * 0.02, rotSpeed: (Math.random() - 0.5) * 0.01 };
         }
 
         function createMonsterMesh() {
@@ -862,8 +778,7 @@
             const eyeGeo = new THREE.SphereGeometry(0.11, 6, 6);
             const eyeLeft = new THREE.Mesh(eyeGeo, new THREE.MeshBasicMaterial()); eyeLeft.position.set(0.15, 0.2, 0.15); 
             const eyeRight = new THREE.Mesh(eyeGeo, new THREE.MeshBasicMaterial()); eyeRight.position.set(0.15, 0.2, -0.15); 
-            root.add(eyeLeft, eyeRight);
-            root.position.set(0, -10, 0);
+            root.add(eyeLeft, eyeRight); root.position.set(0, -10, 0);
             return { root, eyeLeft, eyeRight };
         }
 
@@ -882,41 +797,24 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
             container.appendChild(renderer.domElement);
 
-            controlStationGroup = new THREE.Group();
-            scene.add(controlStationGroup);
-
-            dollRoomGroup = new THREE.Group();
-            dollRoomGroup.position.set(0, -100, 0); 
-            scene.add(dollRoomGroup);
-
-            angelGroup = new THREE.Group();
-            angelGroup.position.set(0, -200, 0);
-            scene.add(angelGroup);
+            controlStationGroup = new THREE.Group(); scene.add(controlStationGroup);
+            dollRoomGroup = new THREE.Group(); dollRoomGroup.position.set(0, -100, 0); scene.add(dollRoomGroup);
+            angelGroup = new THREE.Group(); angelGroup.position.set(0, -200, 0); scene.add(angelGroup);
 
             for(let i=0; i<15; i++) {
                 let aData = createAngelMesh();
-                aData.mesh.position.set(
-                    (Math.random() - 0.5) * 12,
-                    (Math.random() - 0.5) * 6 + 2,
-                    (Math.random() - 0.5) * 6 - 5
-                );
-                angelGroup.add(aData.mesh);
-                angelsArray.push(aData);
+                aData.mesh.position.set((Math.random() - 0.5) * 12, (Math.random() - 0.5) * 6 + 2, (Math.random() - 0.5) * 6 - 5);
+                angelGroup.add(aData.mesh); angelsArray.push(aData);
             }
 
             buildControlStation();
             buildDollRoom();
 
-            roomLight = new THREE.PointLight(0x55ff55, 1.8, 12); 
-            roomLight.position.set(0, 2.8, 0); 
-            scene.add(roomLight);
-
-            globalAmbientLight = new THREE.AmbientLight(0x222533); 
-            scene.add(globalAmbientLight);
+            roomLight = new THREE.PointLight(0x55ff55, 1.8, 12); roomLight.position.set(0, 2.8, 0); scene.add(roomLight);
+            globalAmbientLight = new THREE.AmbientLight(0x222533); scene.add(globalAmbientLight);
 
             flashlightLight = new THREE.SpotLight(0xffffff, 0.0, 25, Math.PI / 5, 0.4, 1);
-            scene.add(flashlightLight);
-            scene.add(flashlightLight.target); 
+            scene.add(flashlightLight); scene.add(flashlightLight.target); 
 
             window.addEventListener('resize', onWindowResize, false);
         }
@@ -926,79 +824,44 @@
             metalWallTexture.repeat.set(2, 1.5);
             const floorMaterial = new THREE.MeshStandardMaterial({ color: 0x141419, roughness: 0.8 }); 
 
-            const floor = new THREE.Mesh(new THREE.PlaneGeometry(6, 6), floorMaterial);
-            floor.rotation.x = -Math.PI / 2; controlStationGroup.add(floor);
-
-            const backWall = new THREE.Mesh(new THREE.PlaneGeometry(6, 4), texturedWallMat);
-            backWall.position.set(0, 2, 3); backWall.rotation.y = Math.PI; controlStationGroup.add(backWall);
-
-            const frontWall = new THREE.Mesh(new THREE.PlaneGeometry(6, 4), texturedWallMat);
-            frontWall.position.set(0, 2, -3); controlStationGroup.add(frontWall);
+            const floor = new THREE.Mesh(new THREE.PlaneGeometry(6, 6), floorMaterial); floor.rotation.x = -Math.PI / 2; controlStationGroup.add(floor);
+            const backWall = new THREE.Mesh(new THREE.PlaneGeometry(6, 4), texturedWallMat); backWall.position.set(0, 2, 3); backWall.rotation.y = Math.PI; controlStationGroup.add(backWall);
+            const frontWall = new THREE.Mesh(new THREE.PlaneGeometry(6, 4), texturedWallMat); frontWall.position.set(0, 2, -3); controlStationGroup.add(frontWall);
 
             const bedFrame = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.3, 2.0), new THREE.MeshStandardMaterial({ color: 0x2d221c, roughness: 0.9 }));
             bedFrame.position.set(0, 0.15, -1.8); controlStationGroup.add(bedFrame);
 
-            const batteryGenGroup = new THREE.Group();
-            batteryGenGroup.position.set(0, 0.5, -2.9);
+            const batteryGenGroup = new THREE.Group(); batteryGenGroup.position.set(0, 0.5, -2.9);
+            const genHousing = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.2), new THREE.MeshStandardMaterial({ color: 0x223344, roughness: 0.5 })); batteryGenGroup.add(genHousing);
 
-            const genHousing = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.2), new THREE.MeshStandardMaterial({ color: 0x223344, roughness: 0.5 }));
-            batteryGenGroup.add(genHousing);
+            frontBatteryWheel = new THREE.Group(); frontBatteryWheel.position.set(0, 0, 0.11);
+            const genWheelRim = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.015, 6, 16), new THREE.MeshStandardMaterial({ color: 0xaaaaaa, roughness: 0.3 })); frontBatteryWheel.add(genWheelRim);
+            const genSpoke = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.02, 0.01), new THREE.MeshStandardMaterial({ color: 0x111 })); frontBatteryWheel.add(genSpoke);
+            batteryGenGroup.add(frontBatteryWheel); controlStationGroup.add(batteryGenGroup);
 
-            frontBatteryWheel = new THREE.Group();
-            frontBatteryWheel.position.set(0, 0, 0.11);
-            const genWheelRim = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.015, 6, 16), new THREE.MeshStandardMaterial({ color: 0xaaaaaa, roughness: 0.3 }));
-            frontBatteryWheel.add(genWheelRim);
-            const genSpoke = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.02, 0.01), new THREE.MeshStandardMaterial({ color: 0x111 }));
-            frontBatteryWheel.add(genSpoke);
-            batteryGenGroup.add(frontBatteryWheel);
-            controlStationGroup.add(batteryGenGroup);
-
-            tableGroup = new THREE.Group();
-            tableGroup.position.set(0, 0, 2.6); 
-
-            const tableTop = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.1, 0.8), new THREE.MeshStandardMaterial({ color: 0x4a2c11, roughness: 0.9 }));
-            tableTop.position.y = 0.7;
-            tableGroup.add(tableTop);
+            tableGroup = new THREE.Group(); tableGroup.position.set(0, 0, 2.6); 
+            const tableTop = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.1, 0.8), new THREE.MeshStandardMaterial({ color: 0x4a2c11, roughness: 0.9 })); tableTop.position.y = 0.7; tableGroup.add(tableTop);
             
             for(let x of [-0.7, 0.7]) {
                 for(let z of [-0.3, 0.3]) {
-                    let leg = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.7), new THREE.MeshStandardMaterial({ color: 0x36200c }));
-                    leg.position.set(x, 0.35, z);
-                    tableGroup.add(leg);
+                    let leg = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.7), new THREE.MeshStandardMaterial({ color: 0x36200c })); leg.position.set(x, 0.35, z); tableGroup.add(leg);
                 }
             }
 
-            const puppetBox = new THREE.Group();
-            puppetBox.position.set(0, 1.1, 0); 
-
+            const puppetBox = new THREE.Group(); puppetBox.position.set(0, 1.1, 0); 
             const redMatDefault = new THREE.MeshStandardMaterial({ color: 0x8a1c1c, metalness: 0.2, roughness: 0.6 });
             const dynamicFrontMat = new THREE.MeshStandardMaterial({ map: puppetBoxTexture, roughness: 0.5 });
-            
-            const boxMaterials = [
-                redMatDefault, redMatDefault, redMatDefault, redMatDefault, redMatDefault, dynamicFrontMat
-            ];
+            const boxMaterials = [ redMatDefault, redMatDefault, redMatDefault, redMatDefault, redMatDefault, dynamicFrontMat ];
 
-            const boxHousing = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.7, 0.5), boxMaterials);
-            puppetBox.add(boxHousing);
+            const boxHousing = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.7, 0.5), boxMaterials); puppetBox.add(boxHousing);
 
-            puppetBoxWheel = new THREE.Group();
-            puppetBoxWheel.position.set(0.31, 0, 0); 
-            puppetBoxWheel.rotation.y = Math.PI / 2; 
-
-            const wheelRim = new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.02, 6, 16), new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.4 }));
-            puppetBoxWheel.add(wheelRim);
+            puppetBoxWheel = new THREE.Group(); puppetBoxWheel.position.set(0.31, 0, 0); puppetBoxWheel.rotation.y = Math.PI / 2; 
+            const wheelRim = new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.02, 6, 16), new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.4 })); puppetBoxWheel.add(wheelRim);
             const spokeX = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.02, 0.02), new THREE.MeshStandardMaterial({ color: 0x111 }));
-            const spokeY = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.26, 0.02), new THREE.MeshStandardMaterial({ color: 0x111 }));
-            puppetBoxWheel.add(spokeX, spokeY);
+            const spokeY = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.26, 0.02), new THREE.MeshStandardMaterial({ color: 0x111 })); puppetBoxWheel.add(spokeX, spokeY);
 
-            const crankPeg = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.08), new THREE.MeshStandardMaterial({ color: 0xcccccc }));
-            crankPeg.position.set(0.1, 0, -0.04);
-            crankPeg.rotation.x = Math.PI / 2;
-            puppetBoxWheel.add(crankPeg);
-
-            puppetBox.add(puppetBoxWheel);
-            tableGroup.add(puppetBox);
-            controlStationGroup.add(tableGroup);
+            const crankPeg = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.08), new THREE.MeshStandardMaterial({ color: 0xcccccc })); crankPeg.position.set(0.1, 0, -0.04); crankPeg.rotation.x = Math.PI / 2; puppetBoxWheel.add(crankPeg);
+            puppetBox.add(puppetBoxWheel); tableGroup.add(puppetBox); controlStationGroup.add(tableGroup);
 
             const sideFloorGeo = new THREE.PlaneGeometry(4, 24);
             const leftFloor = new THREE.Mesh(sideFloorGeo, floorMaterial); leftFloor.position.set(-6, 0, 0); leftFloor.rotation.set(-Math.PI / 2, 0, Math.PI / 2); controlStationGroup.add(leftFloor);
@@ -1008,13 +871,8 @@
             leftDoor = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3.2, 3.2), doorMat); leftDoor.position.set(-3, 1.6, 0); controlStationGroup.add(leftDoor);
             rightDoor = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3.2, 3.2), doorMat); rightDoor.position.set(3, 1.6, 0); controlStationGroup.add(rightDoor);
 
-            let leftMeshObj = createMonsterMesh();
-            monsters.left.root = leftMeshObj.root; monsters.left.eyeLeft = leftMeshObj.eyeLeft; monsters.left.eyeRight = leftMeshObj.eyeRight;
-            controlStationGroup.add(monsters.left.root);
-
-            let rightMeshObj = createMonsterMesh();
-            monsters.right.root = rightMeshObj.root; monsters.right.eyeLeft = rightMeshObj.eyeLeft; monsters.right.eyeRight = rightMeshObj.eyeRight;
-            controlStationGroup.add(monsters.right.root);
+            let leftMeshObj = createMonsterMesh(); monsters.left.root = leftMeshObj.root; monsters.left.eyeLeft = leftMeshObj.eyeLeft; monsters.left.eyeRight = leftMeshObj.eyeRight; controlStationGroup.add(monsters.left.root);
+            let rightMeshObj = createMonsterMesh(); monsters.right.root = rightMeshObj.root; monsters.right.eyeLeft = rightMeshObj.eyeLeft; monsters.right.eyeRight = rightMeshObj.eyeRight; controlStationGroup.add(monsters.right.root);
         }
 
         function buildDollRoom() {
@@ -1107,12 +965,7 @@
             if (document.pointerLockElement === document.body) {
                 if (jumpscareActive || revivalActive || puppetBoxDeadheadTriggered) return;
                 isPaused = false; 
-                
-                // Keep frame visible ONLY if the 4:30 transition hasn't occurred yet
-                if (!controlsAlreadyFadedOut) {
-                    document.getElementById('controls-legend').style.display = 'block';
-                }
-                
+                if (!controlsAlreadyFadedOut) { document.getElementById('controls-legend').style.display = 'block'; }
                 if (!gameActive && !cutsceneActive && cutsceneElapsedTime === 0 && !hospitalModeActive) { startCutsceneSequence(); }
                 else if (gameActive && !hospitalModeActive) { spawnThreatCycle(pauseTimeRemaining > 0 ? pauseTimeRemaining : null); startCountdownProcessor(); }
             } else {
@@ -1137,18 +990,12 @@
                 let minutes = Math.floor(timeRemainingSeconds / 60); let seconds = timeRemainingSeconds % 60;
                 document.getElementById('countdown-timer').innerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
                 
-                // --- PURE SEAMLESS VISUAL FADE-OUT AT 4:30 ---
                 if (minutes === 4 && seconds === 30 && !controlsAlreadyFadedOut) {
                     controlsAlreadyFadedOut = true;
                     const legendFrame = document.getElementById('controls-legend');
                     legendFrame.style.opacity = '0';
-                    
-                    // Completely hide the DOM box only after the CSS opacity fade transition finishes
-                    setTimeout(() => {
-                        legendFrame.style.display = 'none';
-                    }, 2100); 
+                    setTimeout(() => { legendFrame.style.display = 'none'; }, 2100); 
                 }
-
                 if (timeRemainingSeconds <= 0) { clearInterval(timerIntervalId); triggerHospitalTransition(); }
             }, 1000);
         }
@@ -1282,7 +1129,6 @@
 
         document.addEventListener('wheel', (e) => {
             if (!gameActive || isPaused || hospitalModeActive || jumpscareActive || revivalActive || puppetBoxDeadheadTriggered || !puppetBoxMechanicEnabled) return;
-            
             if (lookBehindProgress >= 1.0 && middleMousePressed && powerLevel > 0) {
                 puppetBoxLevel = Math.min(100, puppetBoxLevel + 2.5); mouseScrolledThisFrame = true;
                 if (puppetBoxWheel) { puppetBoxWheel.rotation.z += 0.4; }
@@ -1323,15 +1169,11 @@
                 let m = monsters[targetSide];
 
                 if (m.active) {
-                    targetSide = (targetSide === "left") ? "right" : "left";
-                    m = monsters[targetSide];
+                    targetSide = (targetSide === "left") ? "right" : "left"; m = monsters[targetSide];
                 }
 
                 if (!m.active) {
-                    m.active = true;
-                    m.progress = 0;
-                    m.audioTriggered = false; 
-                    
+                    m.active = true; m.progress = 0; m.audioTriggered = false; 
                     let roll = Math.random();
                     if (roll < 0.25) { m.type = "phantasm"; m.speed = 0.022; } 
                     else if (roll < 0.50) { m.type = "twitcher"; m.speed = 0.014; } 
@@ -1341,9 +1183,7 @@
                     if (selectedDifficulty === "hard") m.speed *= 1.35;
                     if (selectedDifficulty === "easy") m.speed *= 0.75;
                 }
-
-                pauseTimeRemaining = 0; 
-                spawnThreatCycle(); 
+                pauseTimeRemaining = 0; spawnThreatCycle(); 
             }, nextSpawnDelay);
         }
 
@@ -1377,25 +1217,15 @@
             }
 
             if (jumpscareActive) {
-                jumpscareTimer -= 0.016;
-                jumpscareTimeElapsed += 0.016;
-
+                jumpscareTimer -= 0.016; jumpscareTimeElapsed += 0.016;
                 const containerOverlay = document.getElementById('jumpscare-overlay');
-                if (Math.random() > 0.5) {
-                    containerOverlay.style.backgroundColor = '#ffffff';
-                } else {
-                    containerOverlay.style.backgroundColor = '#ff0000';
-                }
+                containerOverlay.style.backgroundColor = Math.random() > 0.5 ? '#ffffff' : '#ff0000';
 
                 if (jumpscareTimer <= 0) {
-                    if (window.cachedScareType === "phantasm") { 
-                        triggerHeartbeatGame(); 
-                    } else { 
-                        triggerGameOverTab(); 
-                    }
+                    if (window.cachedScareType === "phantasm") { triggerHeartbeatGame(); } 
+                    else { triggerGameOverTab(); }
                 }
-                renderer.render(scene, camera); 
-                return; 
+                renderer.render(scene, camera); return; 
             }
 
             if (creditsActive) {
@@ -1414,12 +1244,7 @@
                     camera.rotation.set(THREE.MathUtils.lerp(-Math.PI / 12, 0, standProgress), THREE.MathUtils.lerp(camera.rotation.y, 0, standProgress), 0);
                 } else {
                     cutsceneActive = false; gameActive = true; document.getElementById('hud-container').style.display = 'block';
-                    
-                    // Display layout frame if the timeline condition hasn't been met yet
-                    if (!controlsAlreadyFadedOut) {
-                        document.getElementById('controls-legend').style.display = 'block';
-                    }
-                    
+                    if (!controlsAlreadyFadedOut) { document.getElementById('controls-legend').style.display = 'block'; }
                     isPaused = false; startCountdownProcessor(); spawnThreatCycle();
                 }
             }
@@ -1458,22 +1283,16 @@
                 powerLevel = Math.max(0, powerLevel - runningDrain);
 
                 if (puppetBoxMechanicEnabled) {
-                    let boxDecayRate = 0.06;
-                    if (selectedDifficulty === "hard") boxDecayRate = 0.09;
-                    if (selectedDifficulty === "easy") boxDecayRate = 0.035;
+                    let boxDecayRate = selectedDifficulty === "hard" ? 0.09 : (selectedDifficulty === "easy" ? 0.035 : 0.06);
                     puppetBoxLevel = Math.max(0, puppetBoxLevel - boxDecayRate);
                     document.getElementById('puppet-warning-hud').style.display = (puppetBoxLevel < 30) ? 'block' : 'none';
-                } else {
-                    document.getElementById('puppet-warning-hud').style.display = 'none';
-                }
+                } else { document.getElementById('puppet-warning-hud').style.display = 'none'; }
 
                 updatePuppetBoxTextureFace();
 
                 if (lookBehindDirection === 1) {
                     lookBehindProgress = Math.min(1.0, lookBehindProgress + 0.07); 
-                    if (lookBehindProgress >= 1.0) {
-                        document.getElementById('status-generator').innerText = "SCROLL MOUSE WHEEL TO CHARGE";
-                    }
+                    if (lookBehindProgress >= 1.0) { document.getElementById('status-generator').innerText = "SCROLL MOUSE WHEEL TO CHARGE"; }
                 } else if (lookBehindDirection === -1) {
                     lookBehindProgress = Math.max(0.0, lookBehindProgress - 0.07);
                     if (lookBehindProgress <= 0.0) {
@@ -1488,9 +1307,7 @@
                 if (lookBehindProgress >= 1.0 && puppetBoxMechanicEnabled) {
                     if (mouseScrolledThisFrame && powerLevel > 0) {
                         if (audioObjects.boxSqueak) audioObjects.boxSqueak.play().catch(e => {});
-                    } else {
-                        if (audioObjects.boxSqueak) audioObjects.boxSqueak.pause();
-                    }
+                    } else { if (audioObjects.boxSqueak) audioObjects.boxSqueak.pause(); }
                 } else if (lookBehindProgress === 0.0) {
                     if (spacePressed) {
                         powerLevel = Math.min(100, powerLevel + 0.6); 
@@ -1515,9 +1332,7 @@
                     leftDoorClosed = false; rightDoorClosed = false;
                     document.getElementById('status-left').innerText = "LEFT: DEAD"; document.getElementById('status-right').innerText = "RIGHT: DEAD";
                     roomLight.intensity = 0; flashlightLight.intensity = 0; globalAmbientLight.color.setHex(0x050505);
-                } else {
-                    if (!flashlightModeEnabled) { roomLight.intensity = THREE.MathUtils.lerp(roomLight.intensity, 1.8, 0.1); }
-                }
+                } else { if (!flashlightModeEnabled) { roomLight.intensity = THREE.MathUtils.lerp(roomLight.intensity, 1.8, 0.1); } }
 
                 if (flashlightModeEnabled && powerLevel > 0) {
                     flashlightLight.position.copy(camera.position);
@@ -1537,11 +1352,7 @@
                         if (m.type === "phantasm") {
                             let erraticFactor = 1 + Math.sin(Date.now() * 0.2) * 0.6; m.root.scale.set(0.6, erraticFactor * 2.5, 0.6);
                             m.eyeLeft.material.color.setHex(0xcc00ff); m.eyeRight.material.color.setHex(0xcc00ff);
-                            
-                            if (!m.audioTriggered) {
-                                triggerCustomPlay('phantasmZoom');
-                                m.audioTriggered = true;
-                            }
+                            if (!m.audioTriggered) { triggerCustomPlay('phantasmZoom'); m.audioTriggered = true; }
                         } 
                         else if (m.type === "twitcher") {
                             let pulseFactor = 1 + Math.sin(Date.now() * 0.05) * 0.4; m.root.scale.set(pulseFactor, 2.2 - pulseFactor, 1);
@@ -1565,8 +1376,7 @@
                             else if (sideKey === "right" && rightDoorClosed && powerLevel > 0) { playTone(110, 0.5, 'sine', 0.2); m.active = false; m.root.position.set(0, -10, 0); } 
                             else {
                                 let nameText = m.type === "phantasm" ? "The Phantasm" : (m.type === "twitcher" ? "The Twitcher" : (m.type === "lurker" ? "The Lurker" : "The Stalker"));
-                                window.cachedScareType = m.type;
-                                window.cachedDeathReason = `${nameText} breached the ${sideKey} corridor layout.`;
+                                window.cachedScareType = m.type; window.cachedDeathReason = `${nameText} breached the ${sideKey} corridor layout.`;
                                 triggerJumpscareSequence(window.cachedDeathReason, false, sideKey);
                             }
                         }
@@ -1578,13 +1388,8 @@
         }
 
         function triggerJumpscareSequence(reason, isFromPuppet = false, sideKey = "left") {
-            gameActive = false; 
-            jumpscareActive = true; 
-            jumpscareTimer = 2.0; 
-            jumpscareTimeElapsed = 0; 
-            
-            clearInterval(timerIntervalId); 
-            clearTimeout(activeSpawnTimeout);
+            gameActive = false; jumpscareActive = true; jumpscareTimer = 2.0; jumpscareTimeElapsed = 0; 
+            clearInterval(timerIntervalId); clearTimeout(activeSpawnTimeout);
             document.getElementById('puppet-warning-hud').style.display = 'none';
             document.getElementById('controls-legend').style.display = 'none';
             if(audioObjects.boxSqueak) audioObjects.boxSqueak.pause();
@@ -1592,9 +1397,7 @@
             document.exitPointerLock();
 
             document.getElementById('hud-container').style.display = 'none';
-            
-            const overlayContainer = document.getElementById('jumpscare-overlay');
-            overlayContainer.style.display = 'block';
+            const overlayContainer = document.getElementById('jumpscare-overlay'); overlayContainer.style.display = 'block';
 
             triggerCustomPlay('jumpscare');
             window.cachedDeathReason = reason;
@@ -1623,19 +1426,13 @@
             monsters.left.active = false; monsters.left.root.position.set(0, -10, 0); monsters.left.root.scale.set(1, 1, 1);
             monsters.right.active = false; monsters.right.root.position.set(0, -10, 0); monsters.right.root.scale.set(1, 1, 1);
             
-            puppetBoxLevel = 100.0; 
-            camera.position.set(0, 1.6, 0); pitch = 0; yaw = 0; lookBehindProgress = 0; lookBehindDirection = 0; camera.rotation.set(0,0,0);
-            
+            puppetBoxLevel = 100.0; camera.position.set(0, 1.6, 0); pitch = 0; yaw = 0; lookBehindProgress = 0; lookBehindDirection = 0; camera.rotation.set(0,0,0);
             document.body.requestPointerLock();
             
             setTimeout(() => {
                 vignette.style.transition = "opacity 1.5s ease-in-out"; vignette.style.opacity = 0.0;
                 gameActive = true; isPaused = false; document.getElementById('hud-container').style.display = 'block';
-                
-                if (!controlsAlreadyFadedOut) {
-                    document.getElementById('controls-legend').style.display = 'block';
-                }
-                
+                if (!controlsAlreadyFadedOut) { document.getElementById('controls-legend').style.display = 'block'; }
                 startCountdownProcessor(); spawnThreatCycle();
             }, 800);
         }
@@ -1658,9 +1455,7 @@
             document.getElementById('revival-bg-overlay').style.display = "none"; document.getElementById('puppet-warning-hud').style.display = 'none';
             
             const legendFrame = document.getElementById('controls-legend');
-            legendFrame.style.display = 'none';
-            legendFrame.style.opacity = '1'; 
-            controlsAlreadyFadedOut = false; // Reset background state tracker
+            legendFrame.style.display = 'none'; legendFrame.style.opacity = '1'; controlsAlreadyFadedOut = false; 
             
             document.getElementById('hospital-controls').style.display = 'none';
             const vignette = document.getElementById('blink-vignette'); vignette.style.transition = "none"; vignette.style.opacity = 1.0;
@@ -1670,7 +1465,6 @@
             if(audioObjects.creepyMusicBox) audioObjects.creepyMusicBox.pause();
             
             controlStationGroup.position.set(0, 0, 0); dollRoomGroup.position.set(0, -100, 0); angelGroup.position.set(0, -200, 0); 
-
             scene.background.setHex(0x050508); scene.fog.color.setHex(0x050508); scene.fog.density = 0.12;
             roomLight.color.setHex(0x55ff55); roomLight.position.set(0, 2.8, 0); globalAmbientLight.color.setHex(0x222533);
 
@@ -1678,7 +1472,6 @@
             monsters.right.active = false; monsters.right.root.position.set(0, -10, 0); monsters.right.root.scale.set(1, 1, 1);
             
             camera.position.set(0, 1.6, 0); camera.rotation.set(0, 0, 0);
-
             powerLevel = 100.0; puppetBoxLevel = 100.0; timeRemainingSeconds = 300; 
             document.getElementById('countdown-timer').innerText = "05:00";
             
@@ -1698,6 +1491,7 @@
 
         init3D();
         animate();
+        renderMatrixMenuBackground();
     </script>
 </body>
 </html>
