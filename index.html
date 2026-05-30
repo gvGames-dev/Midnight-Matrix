@@ -144,6 +144,52 @@
             left: 2px;
         }
 
+        /* --- LOADING SCREEN ENGINE --- */
+        #loading-screen {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 35;
+            color: #33ff33;
+            font-size: 14px;
+            letter-spacing: 3px;
+            box-sizing: border-box;
+        }
+
+        #loading-text {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            text-shadow: 0 0 10px rgba(51, 255, 51, 0.5);
+            animation: warningBlink 1s infinite alternate;
+        }
+
+        .spinner-container {
+            position: absolute;
+            bottom: 40px;
+            left: 40px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .loading-spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(51, 255, 51, 0.2);
+            border-top: 3px solid #33ff33;
+            border-radius: 50%;
+            animation: spinCircle 0.8s linear infinite;
+            box-shadow: 0 0 8px rgba(51, 255, 51, 0.3);
+        }
+
+        @keyframes spinCircle {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         /* --- CREDITS DECK ENGINE --- */
         #credits-frame {
             display: none;
@@ -229,9 +275,58 @@
             text-align: center;
         }
 
+        /* --- SQUEAKY DOOR EVENT UI --- */
+        #oil-event-hud {
+            display: none;
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 45;
+            text-align: center;
+            color: #ff3333;
+            font-family: inherit;
+            pointer-events: none;
+        }
+
+        #oil-event-text {
+            font-size: 18px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px #ff0000;
+            animation: warningBlink 0.3s infinite alternate;
+            margin-bottom: 15px;
+        }
+
+        .space-key-icon {
+            display: inline-block;
+            padding: 12px 48px;
+            background: rgba(40, 0, 0, 0.8);
+            border: 2px solid #ff3333;
+            border-radius: 4px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #ff3333;
+            box-shadow: 0 0 15px #ff0000;
+            animation: iconShake 0.15s infinite;
+            letter-spacing: 2px;
+        }
+
+        #oil-event-counter {
+            font-size: 14px;
+            color: #ffaa00;
+            margin-top: 10px;
+            letter-spacing: 2px;
+        }
+
         @keyframes warningBlink {
             0% { opacity: 0.3; }
             100% { opacity: 1.0; }
+        }
+
+        @keyframes iconShake {
+            0% { transform: translate(2px, 1px) rotate(0deg); }
+            100% { transform: translate(-1px, -2px) rotate(-1deg); }
         }
 
         #status-indicators {
@@ -319,12 +414,26 @@
 
     <canvas id="menu-matrix-canvas"></canvas>
 
+    <div id="loading-screen">
+        <div id="loading-text">ESTABLISHING QUANTUM LINK...</div>
+        <div class="spinner-container">
+            <div class="loading-spinner"></div>
+            <div style="font-size: 10px; letter-spacing: 1px; color: #22aa22;">LOADING DATA CORES</div>
+        </div>
+    </div>
+
     <div id="revival-ui">
         <div id="revival-prompt">[STABILIZE BIOMETRICS]</div>
         <div id="revival-heart">⚡</div>
         <div id="revival-spacebar" class="spacebar-graphic">TAP SPACEBAR</div>
         <div id="revival-counter">HITS: 0 / 7</div>
         <div id="revival-strikes">MISSES: 0 / 5</div>
+    </div>
+
+    <div id="oil-event-hud">
+        <div id="oil-event-text">DOORS ARE SQUEAKY! OIL THEM UP QUICKLY!</div>
+        <div class="space-key-icon">SPACEBAR</div>
+        <div id="oil-event-counter">PROGRESS: 0 / 10</div>
     </div>
 
     <div id="main-menu" class="menu-panel">
@@ -425,7 +534,7 @@
         </div>
         <div class="legend-item">
             <div class="mouse-icon-container"><span class="keyboard-icon">SPACE</span></div>
-            <span class="legend-text">Hold Spacebar to charge game power</span>
+            <span class="legend-text">Hold Spacebar to charge game power (Overridden during events)</span>
         </div>
         <div class="legend-item" id="hospital-controls" style="display:none;">
             <div class="mouse-icon-container"><span class="keyboard-icon">WASD</span></div>
@@ -462,6 +571,12 @@
         let jumpscareTimer = 0;
         let jumpscareTimeElapsed = 0; 
 
+        // --- Squeaky Door Event State Machine ---
+        let oilEventActive = false;
+        let oilEventClicks = 0;
+        const requiredOilClicks = 10;
+        let oilEventCooldown = 0; // Cooldown frames to prevent instant re-triggers
+
         // --- Look Behind Cutscene Engine ---
         let lookBehindProgress = 0; 
         let lookBehindDirection = 0; 
@@ -494,7 +609,7 @@
         const matrixCtx = matrixCanvas.getContext('2d');
         let matrixColumns = [];
         const matrixFontSize = 14;
-        const matrixCharacters = "ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ10101001XYZ#$@%&+-/*<>".split("");
+        const matrixCharacters = "ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓYAﾕYOﾗﾘﾙﾚﾛﾜﾝ10101001XYZ#$@%&+-/*<>".split("");
 
         // Menu Monster Entities Matrix Positioning Array
         let menuMonsters = [
@@ -513,18 +628,18 @@
         resizeMatrixCanvas();
 
         function renderMatrixMenuBackground() {
-            // Instantly drop matrix loop execution context if the game simulation begins
+            // Keep running even during the loading screen context
             if (gameActive || cutsceneActive || hospitalModeActive || jumpscareActive || revivalActive) {
-                matrixCanvas.style.display = 'none';
-                return;
+                if (document.getElementById('loading-screen').style.display !== 'block') {
+                    matrixCanvas.style.display = 'none';
+                    return;
+                }
             }
             matrixCanvas.style.display = 'block';
 
-            // Slow visual trail frame layout fade back to absolute black
             matrixCtx.fillStyle = 'rgba(0, 0, 0, 0.09)';
             matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
 
-            // --- Render Dynamic Background Silhouettes ---
             menuMonsters.forEach(m => {
                 let dx = m.targetX - m.x;
                 let dy = m.targetY - m.y;
@@ -581,10 +696,9 @@
                     matrixCtx.beginPath(); matrixCtx.arc(14, -m.size/3, 8, 0, Math.PI*2); matrixCtx.fill();
                 }
                 matrixCtx.restore();
-                matrixCtx.shadowBlur = 0; // Restore standard profile
+                matrixCtx.shadowBlur = 0; 
             });
 
-            // --- Render Cascade Streams ---
             matrixCtx.fillStyle = '#33ff33';
             matrixCtx.font = matrixFontSize + 'px Courier New';
 
@@ -967,18 +1081,26 @@
 
         document.getElementById('btn-play-game').addEventListener('click', () => {
             initAudio();
-            document.body.requestPointerLock();
             document.getElementById('main-menu').style.display = 'none';
-            isPaused = false;
             
-            if (flashlightModeEnabled) {
-                globalAmbientLight.intensity = 0.02; roomLight.intensity = 0.0; flashlightLight.intensity = 3.5;
-            } else {
-                globalAmbientLight.intensity = 1.0; roomLight.intensity = 1.8; flashlightLight.intensity = 0.0;
-            }
+            // Show the 3-second Loading Screen instantly
+            const loadingScreen = document.getElementById('loading-screen');
+            loadingScreen.style.display = 'block';
 
-            if (tableGroup) { tableGroup.visible = puppetBoxMechanicEnabled; }
-            if (!gameActive && !cutsceneActive && cutsceneElapsedTime === 0) { startCutsceneSequence(); }
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+                document.body.requestPointerLock();
+                isPaused = false;
+                
+                if (flashlightModeEnabled) {
+                    globalAmbientLight.intensity = 0.02; roomLight.intensity = 0.0; flashlightLight.intensity = 3.5;
+                } else {
+                    globalAmbientLight.intensity = 1.0; roomLight.intensity = 1.8; flashlightLight.intensity = 0.0;
+                }
+
+                if (tableGroup) { tableGroup.visible = puppetBoxMechanicEnabled; }
+                if (!gameActive && !cutsceneActive && cutsceneElapsedTime === 0) { startCutsceneSequence(); }
+            }, 3000); // Forced 3-second delay timer context
         });
 
         document.getElementById('btn-open-settings').addEventListener('click', () => {
@@ -1033,9 +1155,11 @@
                 if (isPaused || jumpscareActive || revivalActive || puppetBoxDeadheadTriggered) return;
                 timeRemainingSeconds--;
                 
-                let minutes = Math.floor(timeRemainingSeconds / 60); let seconds = timeRemainingSeconds % 60;
-                document.getElementById('countdown-timer').innerText = `TIME: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                
+                // --- MODIFIED: LOWER CHANCE MAPPED MATRIX (REDUCED FROM 25% TO 6% TICK CHANCE) ---
+                if (gameActive && !oilEventActive && !hospitalModeActive && oilEventCooldown <= 0 && Math.random() < 0.06) {
+                    triggerSqueakyDoorEvent();
+                }
+
                 if (minutes === 4 && seconds === 30 && !controlsAlreadyFadedOut) {
                     controlsAlreadyFadedOut = true;
                     const legendFrame = document.getElementById('controls-legend');
@@ -1046,8 +1170,36 @@
             }, 1000);
         }
 
+        function triggerSqueakyDoorEvent() {
+            oilEventActive = true;
+            oilEventClicks = 0;
+            spacePressed = false; // Kill battery charge sequence upon trigger
+            document.getElementById('oil-event-counter').innerText = `PROGRESS: 0 / ${requiredOilClicks}`;
+            document.getElementById('oil-event-hud').style.display = 'block';
+            
+            document.getElementById('status-generator').innerText = "GENERATOR // LOCKED";
+            document.getElementById('status-generator').className = "active-status";
+            if (audioObjects.boxSqueak) audioObjects.boxSqueak.pause();
+
+            if (leftDoorClosed) {
+                leftDoorClosed = false;
+                document.getElementById('status-left').innerText = "LEFT DOOR // OPEN";
+                document.getElementById('status-left').className = "";
+            }
+            if (rightDoorClosed) {
+                rightDoorClosed = false;
+                document.getElementById('status-right').innerText = "RIGHT DOOR // OPEN";
+                document.getElementById('status-right').className = "";
+            }
+
+            playTone(180, 0.4, 'sawtooth', 0.3);
+            setTimeout(() => playTone(140, 0.4, 'sawtooth', 0.3), 150);
+        }
+
         function triggerHospitalTransition() {
             gameActive = false; cutsceneActive = false; clearTimeout(activeSpawnTimeout);
+            oilEventActive = false;
+            document.getElementById('oil-event-hud').style.display = 'none';
             if(audioObjects.boxSqueak) audioObjects.boxSqueak.pause();
             document.getElementById('hud-container').style.display = 'none';
             document.getElementById('hospital-controls').style.display = 'flex';
@@ -1083,6 +1235,25 @@
         document.addEventListener('keydown', (e) => {
             if (isPaused && !revivalActive) return;
             
+            // --- EVENT ACTION OVERRIDE: SPACEBAR FOR EVENT ONLY ---
+            if (oilEventActive && e.code === 'Space') {
+                oilEventClicks++;
+                document.getElementById('oil-event-counter').innerText = `PROGRESS: ${oilEventClicks} / ${requiredOilClicks}`;
+                playTone(400, 0.05, 'triangle', 0.25);
+                
+                if (oilEventClicks >= requiredOilClicks) {
+                    oilEventActive = false;
+                    oilEventCooldown = 500; // Raised frame protection padding metrics window
+                    document.getElementById('oil-event-hud').style.display = 'none';
+                    document.getElementById('status-generator').innerText = "GENERATOR // IDLE"; 
+                    document.getElementById('status-generator').className = "";
+                    playTone(220, 0.3, 'sine', 0.3);
+                    
+                    spawnThreatCycle();
+                }
+                return;
+            }
+
             if (revivalActive && e.code === 'Space') {
                 let currentTime = Date.now(); let timeSinceLastBeat = currentTime - lastHeartbeatTime;
                 document.getElementById('revival-spacebar').classList.add('pressed');
@@ -1112,7 +1283,7 @@
 
             if (hospitalModeActive) {
                 if (e.key.toLowerCase() === 'w') keys.w = true; if (e.key.toLowerCase() === 'a') keys.a = true; if (e.key.toLowerCase() === 's') keys.s = true; if (e.key.toLowerCase() === 'd') keys.d = true;
-            } else if (gameActive && !puppetBoxDeadheadTriggered) {
+            } else if (gameActive && !puppetBoxDeadheadTriggered && !oilEventActive) { // Lock battery initialization if event is live
                 if (e.code === 'Space') {
                     if (!spacePressed && lookBehindProgress === 0 && !middleMousePressed) {
                         spacePressed = true;
@@ -1130,7 +1301,10 @@
             } else {
                 if (e.code === 'Space') {
                     if (spacePressed) {
-                        spacePressed = false; document.getElementById('status-generator').innerText = "GENERATOR // IDLE"; document.getElementById('status-generator').className = "";
+                        spacePressed = false; 
+                        if (!oilEventActive) {
+                            document.getElementById('status-generator').innerText = "GENERATOR // IDLE"; document.getElementById('status-generator').className = "";
+                        }
                         if (audioObjects.boxSqueak) audioObjects.boxSqueak.pause();
                     }
                 }
@@ -1140,6 +1314,11 @@
         document.addEventListener('mousedown', (e) => {
             if (!gameActive || cutsceneActive || isPaused || hospitalModeActive || jumpscareActive || revivalActive || puppetBoxDeadheadTriggered) return;
             
+            if (oilEventActive && (e.button === 0 || e.button === 2)) {
+                playTone(90, 0.15, 'sawtooth', 0.2);
+                return;
+            }
+
             if (e.button === 0 && !middleMousePressed && lookBehindProgress === 0) {
                 if (powerLevel > 0) {
                     leftDoorClosed = !leftDoorClosed; document.getElementById('status-left').innerText = leftDoorClosed ? "LEFT DOOR // CLOSED" : "LEFT DOOR // OPEN";
@@ -1158,7 +1337,9 @@
                 e.preventDefault();
                 if (!spacePressed && puppetBoxMechanicEnabled) {
                     middleMousePressed = true; lookBehindDirection = 1; 
-                    document.getElementById('status-generator').innerText = "GENERATOR // LOOKING BACK"; document.getElementById('status-generator').className = "gen-status";
+                    if (!oilEventActive) {
+                        document.getElementById('status-generator').innerText = "GENERATOR // LOOKING BACK"; document.getElementById('status-generator').className = "gen-status";
+                    }
                 }
             }
         });
@@ -1167,7 +1348,9 @@
             if (e.button === 1) { 
                 if (middleMousePressed) {
                     middleMousePressed = false; lookBehindDirection = -1;
-                    document.getElementById('status-generator').innerText = "GENERATOR // LOOKING BACK"; document.getElementById('status-generator').className = "gen-status";
+                    if (!oilEventActive) {
+                        document.getElementById('status-generator').innerText = "GENERATOR // LOOKING BACK"; document.getElementById('status-generator').className = "gen-status";
+                    }
                     if (audioObjects.boxSqueak) audioObjects.boxSqueak.pause();
                 }
             }
@@ -1199,7 +1382,9 @@
         document.addEventListener('contextmenu', e => e.preventDefault());
 
         function spawnThreatCycle(customDelay = null) {
-            if (!gameActive || isPaused || hospitalModeActive || jumpscareActive || revivalActive || puppetBoxDeadheadTriggered) return;
+            if (!gameActive || isPaused || hospitalModeActive || jumpscareActive || revivalActive || puppetBoxDeadheadTriggered || oilEventActive) {
+                return;
+            }
             
             let frequencyMultiplier = 1.0;
             if (selectedDifficulty === "easy") frequencyMultiplier = 1.6;
@@ -1209,7 +1394,7 @@
             pauseTimeRemaining = nextSpawnDelay;
 
             activeSpawnTimeout = setTimeout(() => {
-                if (!gameActive || isPaused || hospitalModeActive || jumpscareActive || revivalActive || puppetBoxDeadheadTriggered) return;
+                if (!gameActive || isPaused || hospitalModeActive || jumpscareActive || revivalActive || puppetBoxDeadheadTriggered || oilEventActive) return;
                 
                 let targetSide = Math.random() > 0.5 ? "left" : "right";
                 let m = monsters[targetSide];
@@ -1323,6 +1508,13 @@
             }
 
             if (gameActive && !isPaused && !hospitalModeActive && !revivalActive && !puppetBoxDeadheadTriggered) {
+                if (oilEventCooldown > 0) oilEventCooldown--;
+                
+                // --- MODIFIED: LOWER RANDOM RE-TRIGGER FRAME TICK PROBABILITY METRIC (REDUCED TO 0.0006) ---
+                if (!oilEventActive && oilEventCooldown <= 0 && Math.random() < 0.0006) {
+                    triggerSqueakyDoorEvent();
+                }
+
                 let runningDrain = 0.05; 
                 if (leftDoorClosed) runningDrain += 0.35; 
                 if (rightDoorClosed) runningDrain += 0.35;
@@ -1338,11 +1530,14 @@
 
                 if (lookBehindDirection === 1) {
                     lookBehindProgress = Math.min(1.0, lookBehindProgress + 0.07); 
-                    if (lookBehindProgress >= 1.0) { document.getElementById('status-generator').innerText = "GENERATOR // WINDING"; }
+                    if (lookBehindProgress >= 1.0 && !oilEventActive) { document.getElementById('status-generator').innerText = "GENERATOR // WINDING"; }
                 } else if (lookBehindDirection === -1) {
                     lookBehindProgress = Math.max(0.0, lookBehindProgress - 0.07);
                     if (lookBehindProgress <= 0.0) {
-                        lookBehindDirection = 0; document.getElementById('status-generator').innerText = "GENERATOR // IDLE"; document.getElementById('status-generator').className = "";
+                        lookBehindDirection = 0; 
+                        if (!oilEventActive) {
+                            document.getElementById('status-generator').innerText = "GENERATOR // IDLE"; document.getElementById('status-generator').className = "";
+                        }
                     }
                 }
 
@@ -1355,7 +1550,7 @@
                         if (audioObjects.boxSqueak) audioObjects.boxSqueak.play().catch(e => {});
                     } else { if (audioObjects.boxSqueak) audioObjects.boxSqueak.pause(); }
                 } else if (lookBehindProgress === 0.0) {
-                    if (spacePressed) {
+                    if (spacePressed && !oilEventActive) {
                         powerLevel = Math.min(100, powerLevel + 0.6); 
                         if (frontBatteryWheel) { frontBatteryWheel.rotation.z += 0.25; }
                     }
@@ -1386,40 +1581,43 @@
                     targetPosition.add(camera.position); flashlightLight.target.position.copy(targetPosition); flashlightLight.target.updateMatrixWorld();
                 }
 
-                leftDoor.position.y = (leftDoorClosed && powerLevel > 0) ? THREE.MathUtils.lerp(leftDoor.position.y, 1.6, 0.15) : THREE.MathUtils.lerp(leftDoor.position.y, 4.8, 0.12);
-                rightDoor.position.y = (rightDoorClosed && powerLevel > 0) ? THREE.MathUtils.lerp(rightDoor.position.y, 1.6, 0.15) : THREE.MathUtils.lerp(rightDoor.position.y, 4.8, 0.12);
+                leftDoor.position.y = (leftDoorClosed && powerLevel > 0 && !oilEventActive) ? THREE.MathUtils.lerp(leftDoor.position.y, 1.6, 0.15) : THREE.MathUtils.lerp(leftDoor.position.y, 4.8, 0.12);
+                rightDoor.position.y = (rightDoorClosed && powerLevel > 0 && !oilEventActive) ? THREE.MathUtils.lerp(rightDoor.position.y, 1.6, 0.15) : THREE.MathUtils.lerp(rightDoor.position.y, 4.8, 0.12);
 
                 for (let sideKey of ["left", "right"]) {
                     let m = monsters[sideKey];
                     if (m.active) {
-                        m.progress += m.speed;
+                        if (!oilEventActive) {
+                            m.progress += m.speed;
+                        }
+
                         let currentX = (sideKey === "left") ? -13 + (10 * m.progress) : 13 - (10 * m.progress);
 
                         if (m.type === "phantasm") {
                             let erraticFactor = 1 + Math.sin(Date.now() * 0.2) * 0.6; m.root.scale.set(0.6, erraticFactor * 2.5, 0.6);
                             m.eyeLeft.material.color.setHex(0xcc00ff); m.eyeRight.material.color.setHex(0xcc00ff);
-                            if (!m.audioTriggered) { triggerCustomPlay('phantasmZoom'); m.audioTriggered = true; }
+                            if (!m.audioTriggered && !oilEventActive) { triggerCustomPlay('phantasmZoom'); m.audioTriggered = true; }
                         } 
                         else if (m.type === "twitcher") {
                             let pulseFactor = 1 + Math.sin(Date.now() * 0.05) * 0.4; m.root.scale.set(pulseFactor, 2.2 - pulseFactor, 1);
                             let blinkRoll = Math.floor(Date.now() / 50) % 2;
                             m.eyeLeft.material.color.setHex(blinkRoll === 0 ? 0xff0000 : 0xffffff); m.eyeRight.material.color.setHex(blinkRoll === 0 ? 0xffffff : 0xff0000);
-                            if (Math.floor(Date.now() / 120) % 4 === 0 && Math.random() < 0.4) { playFootstep(85); }
+                            if (Math.floor(Date.now() / 120) % 4 === 0 && Math.random() < 0.4 && !oilEventActive) { playFootstep(85); }
                         } 
                         else if (m.type === "lurker") {
                             m.root.scale.set(1.4, 0.7, 1.4); m.eyeLeft.material.color.setHex(0x00ff00); m.eyeRight.material.color.setHex(0x00ff00);
-                            if (Math.random() < 0.04) { playTone(40 + Math.sin(Date.now() * 0.01) * 5, 0.4, 'sine', 0.2); }
+                            if (Math.random() < 0.04 && !oilEventActive) { playTone(40 + Math.sin(Date.now() * 0.01) * 5, 0.4, 'sine', 0.2); }
                         } 
                         else { 
                             m.root.scale.set(1, 1, 1); m.eyeLeft.material.color.setHex(0xff0000); m.eyeRight.material.color.setHex(0xff0000);
-                            if (Math.random() < 0.06) { playTone(120 + (m.progress * 100), 0.05, 'sawtooth', 0.08); }
+                            if (Math.random() < 0.06 && !oilEventActive) { playTone(120 + (m.progress * 100), 0.05, 'sawtooth', 0.08); }
                         }
 
                         m.root.position.set(currentX, 0.4, 0);
 
                         if (m.progress >= 1.0) {
-                            if (sideKey === "left" && leftDoorClosed && powerLevel > 0) { playTone(110, 0.5, 'sine', 0.2); m.active = false; m.root.position.set(0, -10, 0); } 
-                            else if (sideKey === "right" && rightDoorClosed && powerLevel > 0) { playTone(110, 0.5, 'sine', 0.2); m.active = false; m.root.position.set(0, -10, 0); } 
+                            if (sideKey === "left" && leftDoorClosed && powerLevel > 0 && !oilEventActive) { playTone(110, 0.5, 'sine', 0.2); m.active = false; m.root.position.set(0, -10, 0); } 
+                            else if (sideKey === "right" && rightDoorClosed && powerLevel > 0 && !oilEventActive) { playTone(110, 0.5, 'sine', 0.2); m.active = false; m.root.position.set(0, -10, 0); } 
                             else {
                                 let nameText = m.type === "phantasm" ? "The Phantasm" : (m.type === "twitcher" ? "The Twitcher" : (m.type === "lurker" ? "The Lurker" : "The Stalker"));
                                 window.cachedScareType = m.type; window.cachedDeathReason = `${nameText} breached the ${sideKey} corridor layout.`;
@@ -1435,6 +1633,8 @@
 
         function triggerJumpscareSequence(reason, isFromPuppet = false, sideKey = "left") {
             gameActive = false; jumpscareActive = true; jumpscareTimer = 2.0; jumpscareTimeElapsed = 0; 
+            oilEventActive = false;
+            document.getElementById('oil-event-hud').style.display = 'none';
             clearInterval(timerIntervalId); clearTimeout(activeSpawnTimeout);
             document.getElementById('puppet-warning-hud').style.display = 'none';
             document.getElementById('controls-legend').style.display = 'none';
@@ -1488,10 +1688,11 @@
             document.getElementById('revival-ui').style.display = "none"; document.getElementById('revival-bg-overlay').style.display = "none";
             document.getElementById('puppet-warning-hud').style.display = 'none'; document.exitPointerLock();
             document.getElementById('controls-legend').style.display = 'none';
+            oilEventActive = false; document.getElementById('oil-event-hud').style.display = 'none';
 
             document.getElementById('death-reason').innerText = customReason || window.cachedDeathReason || "Game Over.";
             const diagnosticArea = document.getElementById('synthesis-diagnostic');
-            diagnosticArea.innerHTML = `<strong>[TIPS]</strong><br><br>• Hold down <strong>Spacebar</strong> to charge your main power supply.<br>• Hold down the <strong>Middle Mouse Button</strong> to look backwards, then **Scroll your Mouse Wheel** to wind up the music box.<br>• Close the left and right doors to block approaching targets before they breach your station!`;
+            diagnosticArea.innerHTML = `<strong>[TIPS]</strong><br><br>• Hold down <strong>Spacebar</strong> to charge your main power supply.<br>• Hold down the <strong>Middle Mouse Button</strong> to look backwards, then **Scroll your Mouse Wheel** to wind up the music box.<br>• Close the left and right doors to block approaching targets before they breach your station!<br>• If your doors become squeaky, spam <strong>Spacebar</strong> quickly before creatures breach the open corridors! Note that power generation drops completely offline until the event is cleared.`;
             document.getElementById('game-over-screen').style.display = 'flex'; isPaused = true;
         }
 
@@ -1499,6 +1700,7 @@
             document.getElementById('game-over-screen').style.display = 'none'; document.getElementById('hud-container').style.display = 'none'; document.getElementById('hospital-hud').style.display = 'none';
             document.getElementById('jumpscare-overlay').style.display = 'none'; document.getElementById('revival-ui').style.display = 'none';
             document.getElementById('revival-bg-overlay').style.display = "none"; document.getElementById('puppet-warning-hud').style.display = 'none';
+            oilEventActive = false; document.getElementById('oil-event-hud').style.display = 'none';
             
             const legendFrame = document.getElementById('controls-legend');
             legendFrame.style.display = 'none'; legendFrame.style.opacity = '1'; controlsAlreadyFadedOut = false; 
@@ -1523,7 +1725,7 @@
             
             leftDoorClosed = false; rightDoorClosed = false; spacePressed = false; middleMousePressed = false; isPaused = true; cutsceneActive = false; hospitalModeActive = false; jumpscareActive = false; revivalActive = false;
             puppetBoxDeadheadTriggered = false; cutsceneElapsedTime = 0; yaw = 0; pitch = 0; lookBehindProgress = 0; lookBehindDirection = 0;
-            keys.w = false; keys.a = false; keys.s = false; keys.d = false; revivalStrikes = 0;
+            keys.w = false; keys.a = false; keys.s = false; keys.d = false; revivalStrikes = 0; oilEventClicks = 0; oilEventCooldown = 0;
 
             document.getElementById('status-left').innerText = "LEFT DOOR // OPEN"; document.getElementById('status-left').className = "";
             document.getElementById('status-right').innerText = "RIGHT DOOR // OPEN"; document.getElementById('status-right').className = "";
