@@ -424,7 +424,7 @@
 
     <div id="revival-ui">
         <div id="revival-prompt">[STABILIZE BIOMETRICS]</div>
-        <div id="revival-heart">⚡</div>
+        <div id="revival-heart">♥️</div>
         <div id="revival-spacebar" class="spacebar-graphic">TAP SPACEBAR</div>
         <div id="revival-counter">HITS: 0 / 7</div>
         <div id="revival-strikes">MISSES: 0 / 5</div>
@@ -628,7 +628,6 @@
         resizeMatrixCanvas();
 
         function renderMatrixMenuBackground() {
-            // Keep running even during the loading screen context
             if (gameActive || cutsceneActive || hospitalModeActive || jumpscareActive || revivalActive) {
                 if (document.getElementById('loading-screen').style.display !== 'block') {
                     matrixCanvas.style.display = 'none';
@@ -1083,7 +1082,6 @@
             initAudio();
             document.getElementById('main-menu').style.display = 'none';
             
-            // Show the 3-second Loading Screen instantly
             const loadingScreen = document.getElementById('loading-screen');
             loadingScreen.style.display = 'block';
 
@@ -1100,7 +1098,7 @@
 
                 if (tableGroup) { tableGroup.visible = puppetBoxMechanicEnabled; }
                 if (!gameActive && !cutsceneActive && cutsceneElapsedTime === 0) { startCutsceneSequence(); }
-            }, 3000); // Forced 3-second delay timer context
+            }, 3000); 
         });
 
         document.getElementById('btn-open-settings').addEventListener('click', () => {
@@ -1155,7 +1153,10 @@
                 if (isPaused || jumpscareActive || revivalActive || puppetBoxDeadheadTriggered) return;
                 timeRemainingSeconds--;
                 
-                // --- MODIFIED: LOWER CHANCE MAPPED MATRIX (REDUCED FROM 25% TO 6% TICK CHANCE) ---
+                let minutes = Math.floor(timeRemainingSeconds / 60);
+                let seconds = timeRemainingSeconds % 60;
+                document.getElementById('countdown-timer').innerText = `TIME: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
                 if (gameActive && !oilEventActive && !hospitalModeActive && oilEventCooldown <= 0 && Math.random() < 0.06) {
                     triggerSqueakyDoorEvent();
                 }
@@ -1173,7 +1174,7 @@
         function triggerSqueakyDoorEvent() {
             oilEventActive = true;
             oilEventClicks = 0;
-            spacePressed = false; // Kill battery charge sequence upon trigger
+            spacePressed = false; 
             document.getElementById('oil-event-counter').innerText = `PROGRESS: 0 / ${requiredOilClicks}`;
             document.getElementById('oil-event-hud').style.display = 'block';
             
@@ -1235,7 +1236,6 @@
         document.addEventListener('keydown', (e) => {
             if (isPaused && !revivalActive) return;
             
-            // --- EVENT ACTION OVERRIDE: SPACEBAR FOR EVENT ONLY ---
             if (oilEventActive && e.code === 'Space') {
                 oilEventClicks++;
                 document.getElementById('oil-event-counter').innerText = `PROGRESS: ${oilEventClicks} / ${requiredOilClicks}`;
@@ -1243,7 +1243,7 @@
                 
                 if (oilEventClicks >= requiredOilClicks) {
                     oilEventActive = false;
-                    oilEventCooldown = 500; // Raised frame protection padding metrics window
+                    oilEventCooldown = 500; 
                     document.getElementById('oil-event-hud').style.display = 'none';
                     document.getElementById('status-generator').innerText = "GENERATOR // IDLE"; 
                     document.getElementById('status-generator').className = "";
@@ -1283,7 +1283,7 @@
 
             if (hospitalModeActive) {
                 if (e.key.toLowerCase() === 'w') keys.w = true; if (e.key.toLowerCase() === 'a') keys.a = true; if (e.key.toLowerCase() === 's') keys.s = true; if (e.key.toLowerCase() === 'd') keys.d = true;
-            } else if (gameActive && !puppetBoxDeadheadTriggered && !oilEventActive) { // Lock battery initialization if event is live
+            } else if (gameActive && !puppetBoxDeadheadTriggered && !oilEventActive) { 
                 if (e.code === 'Space') {
                     if (!spacePressed && lookBehindProgress === 0 && !middleMousePressed) {
                         spacePressed = true;
@@ -1487,7 +1487,7 @@
                 if (keys.w) playerVelocity.add(forward); if (keys.s) playerVelocity.add(forward.clone().negate()); if (keys.d) playerVelocity.add(side); if (keys.a) playerVelocity.add(side.clone().negate());
                 if (playerVelocity.lengthSq() > 0) {
                     playerVelocity.normalize().multiplyScalar(moveSpeed); camera.position.add(playerVelocity);
-                    if (Math.floor(Date.now() / 380) % 2 === 0 && Math.random() < 0.2) { playFootstep(75); }
+                    if (Math.floor(Date.now() / 380) % 2 === 0 && Math.random() < 0.2) { playTone(75); }
                 }
                 camera.position.x = Math.max(-5.5, Math.min(5.5, camera.position.x)); camera.position.z = Math.max(-5.5, Math.min(5.5, camera.position.z));
                 let dx = camera.position.x - interactiveCoreAsset.position.x; let dz = camera.position.z - interactiveCoreAsset.position.z;
@@ -1510,7 +1510,6 @@
             if (gameActive && !isPaused && !hospitalModeActive && !revivalActive && !puppetBoxDeadheadTriggered) {
                 if (oilEventCooldown > 0) oilEventCooldown--;
                 
-                // --- MODIFIED: LOWER RANDOM RE-TRIGGER FRAME TICK PROBABILITY METRIC (REDUCED TO 0.0006) ---
                 if (!oilEventActive && oilEventCooldown <= 0 && Math.random() < 0.0006) {
                     triggerSqueakyDoorEvent();
                 }
@@ -1631,6 +1630,9 @@
             renderer.render(scene, camera);
         }
 
+        // Variable to stash the exact music box level during a phantasm event
+        let savedPuppetBoxLevel = 100.0;
+
         function triggerJumpscareSequence(reason, isFromPuppet = false, sideKey = "left") {
             gameActive = false; jumpscareActive = true; jumpscareTimer = 2.0; jumpscareTimeElapsed = 0; 
             oilEventActive = false;
@@ -1640,6 +1642,10 @@
             document.getElementById('controls-legend').style.display = 'none';
             if(audioObjects.boxSqueak) audioObjects.boxSqueak.pause();
             if(audioObjects.creepyMusicBox) audioObjects.creepyMusicBox.pause();
+            
+            // Stash current music box percentage context before switching environments
+            savedPuppetBoxLevel = puppetBoxLevel;
+            
             document.exitPointerLock();
 
             document.getElementById('hud-container').style.display = 'none';
@@ -1672,13 +1678,22 @@
             monsters.left.active = false; monsters.left.root.position.set(0, -10, 0); monsters.left.root.scale.set(1, 1, 1);
             monsters.right.active = false; monsters.right.root.position.set(0, -10, 0); monsters.right.root.scale.set(1, 1, 1);
             
-            puppetBoxLevel = 100.0; camera.position.set(0, 1.6, 0); pitch = 0; yaw = 0; lookBehindProgress = 0; lookBehindDirection = 0; camera.rotation.set(0,0,0);
+            // Restore previous music box context instead of blanket wiping it
+            puppetBoxLevel = savedPuppetBoxLevel;
+            
+            camera.position.set(0, 1.6, 0); pitch = 0; yaw = 0; lookBehindProgress = 0; lookBehindDirection = 0; camera.rotation.set(0,0,0);
             document.body.requestPointerLock();
             
             setTimeout(() => {
                 vignette.style.transition = "opacity 1.5s ease-in-out"; vignette.style.opacity = 0.0;
                 gameActive = true; isPaused = false; document.getElementById('hud-container').style.display = 'block';
                 if (!controlsAlreadyFadedOut) { document.getElementById('controls-legend').style.display = 'block'; }
+                
+                // Redraw timer strings instantly out of standby
+                let minutes = Math.floor(timeRemainingSeconds / 60);
+                let seconds = timeRemainingSeconds % 60;
+                document.getElementById('countdown-timer').innerText = `TIME: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
                 startCountdownProcessor(); spawnThreatCycle();
             }, 800);
         }
