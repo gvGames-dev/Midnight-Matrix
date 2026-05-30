@@ -11,7 +11,7 @@
             overflow: hidden;
             width: 100%;
             height: 100%;
-            background-color: #000000 !important;
+            background-color: #000 !important;
             font-family: 'Courier New', Courier, monospace;
             user-select: none;
         }
@@ -25,7 +25,7 @@
             z-index: 1;
         }
 
-        /* --- FORCED MATRIX BACKGROUND CANVAS LAYER --- */
+        /* --- FORCED MATRIX BACKGROUND CANVAS --- */
         #menu-matrix-canvas {
             position: absolute;
             top: 0;
@@ -37,75 +37,114 @@
             background: #000000;
         }
 
-        /* --- UI Menu Panels Layer --- */
+        /* --- DIGITAL MATRIX TERMINAL PANELS --- */
         .menu-panel {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            color: #ffffff;
-            text-align: center;
-            background: rgba(3, 10, 3, 0.93) !important;
-            padding: 30px;
-            border: 2px solid #33ff33;
+            color: #33ff33;
+            text-align: left;
+            background: rgba(0, 5, 0, 0.85) !important;
+            padding: 40px;
+            border: 1px solid #118811;
             z-index: 20;
-            box-shadow: 0 0 40px rgba(0, 255, 0, 0.3);
-            width: 480px;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.15), inset 0 0 20px rgba(0, 55, 0, 0.5);
+            width: 520px;
             max-height: 90vh;
             overflow-y: auto;
             box-sizing: border-box;
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(8px);
+        }
+
+        /* Scanline Overlay for Terminal Visual Effect */
+        .menu-panel::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 21;
+            background-size: 100% 3px, 6px 100%;
+            pointer-events: none;
         }
 
         h2 {
             margin-top: 0;
             color: #33ff33;
-            letter-spacing: 4px;
-            text-shadow: 0 0 12px rgba(51, 255, 51, 0.6);
+            font-size: 22px;
+            letter-spacing: 5px;
+            text-shadow: 0 0 8px rgba(51, 255, 51, 0.5);
+            border-bottom: 1px dashed #33ff33;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            text-transform: uppercase;
         }
 
         .menu-btn {
             display: block;
             width: 100%;
-            background: rgba(0, 20, 0, 0.4);
+            background: rgba(0, 15, 0, 0.6);
             border: 1px solid #33ff33;
             color: #33ff33;
             font-family: inherit;
-            font-size: 16px;
-            padding: 12px;
-            margin: 12px 0;
+            font-size: 14px;
+            letter-spacing: 2px;
+            padding: 14px;
+            margin: 16px 0;
             cursor: pointer;
-            font-weight: bold;
             text-transform: uppercase;
-            box-shadow: 0 0 5px rgba(0, 255, 0, 0.1);
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
+            position: relative;
+            z-index: 22;
         }
 
         .menu-btn:hover {
             background: #33ff33;
             color: #000;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.6);
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(51, 255, 51, 0.8);
         }
 
         .setting-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin: 14px 0;
-            font-size: 13px;
+            margin: 20px 0;
+            font-size: 12px;
+            letter-spacing: 1px;
         }
 
-        select, input[type="checkbox"] {
-            background: #111;
+        select {
+            background: #000;
             border: 1px solid #33ff33;
             color: #33ff33;
             font-family: inherit;
-            padding: 6px;
+            padding: 8px;
             outline: none;
             cursor: pointer;
         }
 
-        /* --- Credits Frame Matrix --- */
+        input[type="checkbox"] {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border: 1px solid #33ff33;
+            background: #000;
+            cursor: pointer;
+            position: relative;
+        }
+
+        input[type="checkbox"]:checked::after {
+            content: "■";
+            position: absolute;
+            color: #33ff33;
+            font-size: 14px;
+            top: -3px;
+            left: 2px;
+        }
+
+        /* --- CREDITS DECK ENGINE --- */
         #credits-frame {
             display: none;
             position: absolute;
@@ -123,51 +162,50 @@
             width: 100%;
             text-align: center;
             top: 100%;
-            line-height: 2.2;
-            font-size: 16px;
+            line-height: 2.5;
+            font-size: 15px;
+            letter-spacing: 3px;
         }
 
         .special-thanks {
-            font-size: 26px;
-            color: #ff33aa;
-            text-shadow: 0 0 10px rgba(255,51,170,0.6);
+            font-size: 22px;
+            color: #33ff33;
+            text-shadow: 0 0 12px rgba(51, 255, 51, 0.8);
             margin-top: 50px;
             font-weight: bold;
         }
 
-        /* --- HUD --- */
+        /* --- IN-SIMULATION HUD MATRIX --- */
         #hud-container {
             display: none; 
             position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 420px;
-            background: rgba(10, 10, 10, 0.85);
-            border: 2px solid #33ff33;
-            border-radius: 4px;
-            padding: 12px;
+            top: 25px;
+            left: 25px;
+            width: 380px;
+            background: rgba(0, 8, 0, 0.85);
+            border: 1px dashed #33ff33;
+            padding: 20px;
             z-index: 10;
-            text-align: center;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+            text-align: left;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
             pointer-events: none;
         }
 
         #countdown-timer {
-            font-size: 22px;
-            font-weight: bold;
-            color: #ff3333;
-            text-shadow: 0 0 8px rgba(255, 51, 51, 0.5);
-            margin-bottom: 6px;
-            letter-spacing: 2px;
+            font-size: 26px;
+            font-weight: normal;
+            color: #33ff33;
+            text-shadow: 0 0 6px rgba(51, 255, 51, 0.5);
+            margin-bottom: 12px;
+            letter-spacing: 3px;
         }
 
         .bar-container {
             width: 100%;
-            background-color: #222;
-            height: 14px;
-            margin-top: 5px;
-            border: 1px solid #33ff33;
+            background-color: rgba(0, 20, 0, 0.6);
+            height: 10px;
+            margin-top: 8px;
+            border: 1px solid #116611;
         }
 
         .bar-fill {
@@ -175,96 +213,101 @@
             transition: width 0.05s linear;
         }
         
-        #power-bar { background-color: #33ff33; width: 100%; }
+        #power-bar { background-color: #33ff33; width: 100%; box-shadow: 0 0 8px #33ff33; }
 
         #puppet-warning-hud {
             display: none;
             color: #ff3333;
-            font-size: 14px;
+            font-size: 13px;
+            margin-top: 14px;
+            letter-spacing: 2px;
+            animation: warningBlink 0.4s infinite alternate;
+            text-shadow: 0 0 8px #ff3333;
             font-weight: bold;
-            margin-top: 8px;
-            letter-spacing: 1px;
-            animation: warningBlink 0.6s infinite alternate;
-            text-shadow: 0 0 6px rgba(255, 51, 51, 0.6);
+            border: 1px solid #ff3333;
+            padding: 6px;
+            text-align: center;
         }
 
         @keyframes warningBlink {
-            0% { opacity: 0.2; }
+            0% { opacity: 0.3; }
             100% { opacity: 1.0; }
         }
 
         #status-indicators {
             display: flex;
-            justify-content: space-between;
-            margin-top: 8px;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 18px;
             font-size: 11px;
-            color: #888;
+            color: #228822;
+            letter-spacing: 1px;
+            border-top: 1px dashed #116611;
+            padding-top: 12px;
         }
 
-        .active-status { color: #ff3333 !important; font-weight: bold; }
-        .gen-status { color: #33ffff !important; font-weight: bold; }
+        .active-status { color: #ff3333 !important; text-shadow: 0 0 5px #ff3333; }
+        .gen-status { color: #33ff33 !important; text-shadow: 0 0 5px #33ff33; }
 
-        /* --- Controls Legend --- */
+        /* --- CONTROL INFRASTRUCTURE LEGEND --- */
         #controls-legend {
             display: none;
             position: absolute;
-            bottom: 15px;
-            right: 15px;
-            width: 290px;
+            bottom: 25px;
+            right: 25px;
+            width: 320px;
             max-height: 85vh;
-            background: rgba(10, 10, 10, 0.93);
-            border: 1px solid #33ff33;
-            border-radius: 4px;
-            padding: 10px 12px;
+            background: rgba(0, 5, 0, 0.9);
+            border: 1px dashed #33ff33;
+            padding: 18px;
             z-index: 10;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
             pointer-events: none;
             color: #33ff33;
             font-size: 11px;
             box-sizing: border-box;
             overflow-y: auto;
-            scrollbar-width: none;
-            opacity: 1;
-            transition: opacity 2.0s ease-in-out;
         }
         
         #controls-legend::-webkit-scrollbar { display: none; }
-        .legend-title { font-weight: bold; font-size: 12px; margin-bottom: 6px; border-bottom: 1px solid #33ff33; padding-bottom: 4px; letter-spacing: 1px; text-align: center; }
-        .legend-item { display: flex; align-items: center; margin: 6px 0; }
-        .mouse-icon-container { width: 38px; display: flex; justify-content: center; margin-right: 10px; flex-shrink: 0; }
+        .legend-title { font-size: 12px; margin-bottom: 12px; border-bottom: 1px dashed #33ff33; padding-bottom: 6px; letter-spacing: 2px; text-align: left; }
+        .legend-item { display: flex; align-items: flex-start; margin: 12px 0; }
+        .mouse-icon-container { width: 45px; display: flex; justify-content: center; margin-right: 12px; flex-shrink: 0; }
 
         .mouse-graphic {
-            width: 16px; height: 26px; border: 1.5px solid #33ff33; border-radius: 8px; position: relative; background: rgba(51, 255, 51, 0.05);
+            width: 14px; height: 24px; border: 1px solid #33ff33; border-radius: 6px; position: relative; background: transparent;
         }
 
-        .mouse-graphic::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 1.5px; height: 10px; background: #33ff33; opacity: 0.4; }
+        .mouse-graphic::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 1px; height: 10px; background: #33ff33; opacity: 0.3; }
         .mouse-graphic .click-zone { position: absolute; top: 0; width: 50%; height: 10px; background: #33ff33; opacity: 0; }
-        .mouse-graphic .click-left { left: 0; border-top-left-radius: 6px; }
-        .mouse-graphic .click-right { right: 0; border-top-right-radius: 6px; }
-        .mouse-graphic .scroll-wheel { position: absolute; top: 3px; left: 50%; transform: translateX(-50%); width: 3px; height: 5px; background: #33ff33; border-radius: 1px; }
-        .mouse-graphic.active-left .click-left { opacity: 0.85; }
-        .mouse-graphic.active-right .click-right { opacity: 0.85; }
-        .mouse-graphic.active-middle .scroll-wheel { background: #ff33aa; box-shadow: 0 0 5px #ff33aa; transform: translateX(-50%) scale(1.1); }
-        .keyboard-icon { display: inline-block; width: 36px; text-align: center; background: rgba(51, 255, 51, 0.15); border: 1px solid #33ff33; border-radius: 3px; padding: 2px 0; font-weight: bold; font-size: 9px; }
-        .legend-text { color: #bbbbbb; line-height: 1.25; }
+        .mouse-graphic .click-left { left: 0; border-top-left-radius: 4px; }
+        .mouse-graphic .click-right { right: 0; border-top-right-radius: 4px; }
+        .mouse-graphic .scroll-wheel { position: absolute; top: 3px; left: 50%; transform: translateX(-50%); width: 2px; height: 4px; background: #33ff33; }
+        .mouse-graphic.active-left .click-left { opacity: 0.9; }
+        .mouse-graphic.active-right .click-right { opacity: 0.9; }
+        .mouse-graphic.active-middle .scroll-wheel { background: #33ff33; box-shadow: 0 0 5px #33ff33; }
+        .keyboard-icon { display: inline-block; width: 42px; text-align: center; background: rgba(0, 30, 0, 0.6); border: 1px solid #33ff33; border-radius: 2px; padding: 3px 0; font-size: 9px; letter-spacing: 1px; }
+        .legend-text { color: #22aa22; line-height: 1.4; }
 
         #game-over-screen {
-            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #0d0202; color: #ff3333; z-index: 50; justify-content: center; align-items: center; flex-direction: column; font-size: 24px;
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000000; color: #ff3333; z-index: 50; justify-content: center; align-items: center; flex-direction: column; font-size: 20px;
         }
 
-        .diagnostic-box { background: #1a0505; border: 1px dashed #ff3333; padding: 15px; margin-top: 20px; font-size: 13px; color: #ffaa00; text-align: left; width: 500px; max-width: 90%; line-height: 1.4; }
+        .diagnostic-box { background: rgba(10, 0, 0, 0.8); border: 1px dashed #ff3333; padding: 25px; margin-top: 25px; font-size: 12px; color: #ff7700; text-align: left; width: 520px; max-width: 90%; line-height: 1.5; font-family: inherit; letter-spacing: 1px; }
         #blink-vignette { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 15; pointer-events: none; opacity: 1; transition: opacity 1.5s ease-in-out; }
         #jumpscare-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 28; pointer-events: none; }
-        #revival-bg-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(20, 10, 25, 0.6); z-index: 39; pointer-events: none; transition: background-color 0.1s linear; }
-        #revival-ui { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 40; flex-direction: column; justify-content: center; align-items: center; color: #ffffff; font-family: inherit; }
-        #revival-prompt { font-size: 24px; font-weight: bold; letter-spacing: 2px; margin-bottom: 20px; text-transform: uppercase; text-shadow: 0 0 10px rgba(255,255,255,0.7); }
-        #revival-counter { font-size: 18px; color: #ff66cc; font-weight: bold; margin-top: 15px; text-shadow: 0 0 8px rgba(0,0,0,0.8); }
-        #revival-strikes { font-size: 16px; color: #ff3333; font-weight: bold; margin-top: 5px; text-shadow: 0 0 8px rgba(0,0,0,0.8); }
-        #revival-heart { font-size: 120px; color: #ff3e6c; display: inline-block; user-select: none; transition: transform 0.1s ease; filter: drop-shadow(0 0 15px rgba(255,62,108,0.6)); }
+        #revival-bg-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 15, 0, 0.7); z-index: 39; pointer-events: none; }
+        
+        /* --- RETRO REVIVAL MINI-GAME MATRIX --- */
+        #revival-ui { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 40; flex-direction: column; justify-content: center; align-items: center; color: #33ff33; font-family: inherit; }
+        #revival-prompt { font-size: 20px; letter-spacing: 4px; margin-bottom: 30px; }
+        #revival-counter { font-size: 14px; margin-top: 20px; letter-spacing: 2px; }
+        #revival-strikes { font-size: 14px; color: #ff3333; margin-top: 8px; letter-spacing: 2px; }
+        #revival-heart { font-size: 90px; color: #33ff33; display: inline-block; user-select: none; transition: transform 0.1s ease; text-shadow: 0 0 20px rgba(51, 255, 51, 0.6); }
         #revival-heart.shake { animation: heartPulseShake 0.15s ease-in-out; }
-        .spacebar-graphic { margin-top: 25px; display: inline-block; padding: 12px 55px; border: 3px solid #ffffff; border-radius: 8px; font-size: 16px; font-weight: bold; letter-spacing: 3px; background: rgba(255, 255, 255, 0.1); box-shadow: 0 5px 0 #bbbbbb; transition: all 0.05s ease; }
-        .spacebar-graphic.pressed { transform: translateY(5px); box-shadow: 0 0px 0 #bbbbbb; background: rgba(255, 255, 255, 0.3); }
-        #hospital-hud { display: none; position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); color: #ffbbee; background: rgba(30, 15, 25, 0.85); border: 1px solid #ff66cc; padding: 10px 20px; font-size: 14px; z-index: 10; pointer-events: none; text-align: center; border-radius: 3px; box-shadow: 0 0 10px rgba(255,102,204,0.3); }
+        .spacebar-graphic { margin-top: 30px; display: inline-block; padding: 14px 60px; border: 1px solid #33ff33; font-size: 14px; letter-spacing: 4px; background: rgba(0, 20, 0, 0.4); transition: all 0.05s ease; }
+        .spacebar-graphic.pressed { background: #33ff33; color: #000; box-shadow: 0 0 15px #33ff33; }
+        #hospital-hud { display: none; position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); color: #33ff33; background: rgba(0, 10, 0, 0.9); border: 1px dashed #33ff33; padding: 15px 30px; font-size: 13px; z-index: 10; pointer-events: none; text-align: center; letter-spacing: 1px; box-shadow: 0 0 15px rgba(0,255,0,0.1); }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
@@ -277,117 +320,120 @@
     <canvas id="menu-matrix-canvas"></canvas>
 
     <div id="revival-ui">
-        <div id="revival-prompt">STABILIZE HEARTBEAT</div>
-        <div id="revival-heart">❤️</div>
-        <div id="revival-spacebar" class="spacebar-graphic">SPACE</div>
-        <div id="revival-counter">SYNCHRONIZATIONS REQ: 0 / 7</div>
-        <div id="revival-strikes">STRIKES: 0 / 5</div>
+        <div id="revival-prompt">[STABILIZE BIOMETRICS]</div>
+        <div id="revival-heart">⚡</div>
+        <div id="revival-spacebar" class="spacebar-graphic">TAP SPACEBAR</div>
+        <div id="revival-counter">HITS: 0 / 7</div>
+        <div id="revival-strikes">MISSES: 0 / 5</div>
     </div>
 
     <div id="main-menu" class="menu-panel">
-        <h2>SYSTEM OVERLOAD</h2>
-        <p style="font-size: 11px; color: #33ff33; margin-bottom: 20px; letter-spacing: 1px;">HYBRID GENERATOR CO-ENGAGED</p>
-        <button class="menu-btn" id="btn-play-game">Start Simulation</button>
-        <button class="menu-btn" id="btn-open-settings">Configuration</button>
+        <h2>[MATRIX MENU]</h2>
+        <p style="font-size: 11px; color: #11aa11; margin-bottom: 25px; letter-spacing: 1.5px; line-height: 1.5;">
+            SYSTEM: ONLINE<br>
+            SECURITY: VULNERABLE
+        </p>
+        <button class="menu-btn" id="btn-play-game">Play</button>
+        <button class="menu-btn" id="btn-open-settings">Settings</button>
         <button class="menu-btn" id="btn-open-credits">Credits</button>
     </div>
 
     <div id="settings-menu" class="menu-panel" style="display: none;">
-        <h2>CONFIGURATION</h2>
+        <h2>[SETTINGS]</h2>
         <div class="setting-row">
-            <label>AI THREAT FREQUENCY:</label>
+            <label>DIFFICULTY:</label>
             <select id="setting-difficulty">
-                <option value="easy">EASY ARCHITECTURE</option>
-                <option value="normal" selected>NORMAL ENGINE</option>
-                <option value="hard">HARDCORE MATRIX</option>
+                <option value="easy">EASY</option>
+                <option value="normal" selected>NORMAL</option>
+                <option value="hard">HARD</option>
             </select>
         </div>
         <div class="setting-row">
-            <label>PUPPET BOX ACTIVE:</label>
+            <label>MUSIC BOX MECHANIC:</label>
             <input type="checkbox" id="setting-puppet-active" checked>
         </div>
         <div class="setting-row">
-            <label>FLASHLIGHT MODE (DARK):</label>
+            <label>DARK FLASHLIGHT MODE:</label>
             <input type="checkbox" id="setting-flashlight">
         </div>
-        <button class="menu-btn" id="btn-close-settings" style="margin-top: 25px;">Save Settings</button>
+        <button class="menu-btn" id="btn-close-settings" style="margin-top: 30px;">Save & Exit</button>
     </div>
 
     <div id="credits-frame">
         <div id="credits-scroller">
-            <p><strong>3D SYSTEM OVERLOAD</strong></p>
-            <p>CORE ARCHITECTURE DESIGN</p>
-            <p>PROCEDURAL GENERATOR MATRICES</p>
-            <p>3D GRAPHICS ENGINE USING THREE.JS</p>
-            <p>SYNTHETIC AUDIO WAVE PROTOTYPER</p>
-            <p>DOLL NURSERY DESIGN LABS</p>
+            <p><strong>// CREDITS</strong></p>
+            <p>CORE SYSTEM ARCHITECTURE DESIGN</p>
+            <p>PROCEDURAL DIGITAL STREAM MATRICES</p>
+            <p>3D CANVAS PIPELINE USING THREE.JS</p>
+            <p>SYNTHETIC RESONANCE ENGINE PROTOTYPER</p>
+            <p>DOLL NURSERY MATRIX GRID ARCHITECTS</p>
             <br>
-            <p><strong>LORE WRITING</strong></p>
+            <p><strong>LORE CORE DATASET</strong></p>
             <p>Jissl</p>
             <br>
-            <p><strong>BETA TESTERS</strong></p>
+            <p><strong>TESTERS</strong></p>
             <p>Jissl</p>
             <p>Nick ´oladen</p>
             <br>
-            <p>DIAGNOSTIC SIMULATOR LOGS</p>
-            <p>POINTER INTERACTION PATCH V2.6</p>
+            <p>DIAGNOSTIC ARCHIVE PATCH V2.6</p>
+            <p>POINTER INTERACTION OVERLAY LAYER</p>
             <br><br>
-            <div class="special-thanks">SPECIAL THANKS TO YOU</div>
+            <div class="special-thanks">THANK YOU FOR PLAYING</div>
         </div>
     </div>
 
     <div id="game-over-screen">
-        <h1>CONNECTION TERMINATED</h1>
-        <p id="death-reason" style="font-size: 16px; margin-top: 10px; color: #bbbbbb; text-align: center; max-width: 600px;"></p>
+        <h1 style="letter-spacing: 5px; text-shadow: 0 0 10px #ff0000;">[GAME OVER]</h1>
+        <p id="death-reason" style="font-size: 14px; margin-top: 10px; color: #ff4444; font-family: inherit; letter-spacing: 1.5px;"></p>
         <div class="diagnostic-box" id="synthesis-diagnostic"></div>
-        <button class="menu-btn" id="btn-restart" style="width: 250px;">Restart Simulation</button>
+        <button class="menu-btn" id="btn-restart" style="width: 280px; border-color: #ff3333; color: #ff3333; background: rgba(20,0,0,0.4);">Restart Game</button>
     </div>
 
     <div id="hud-container">
-        <div id="countdown-timer">05:00</div>
-        <div style="color: #33ff33; font-size: 11px; font-weight: bold; text-align:left;" id="power-label">AUXILIARY POWER: 100%</div>
+        <div id="countdown-timer">TIME: 05:00</div>
+        <div style="color: #33ff33; font-size: 11px; text-align:left; letter-spacing: 1px;" id="power-label">POWER SUPPLY: 100%</div>
         <div class="bar-container">
             <div id="power-bar" class="bar-fill"></div>
         </div>
-        <div id="puppet-warning-hud">⚠️ WARNING: PUPPET BOX CRITICAL ⚠️</div>
+        <div id="puppet-warning-hud">WARNING: MUSIC BOX IS WINDING DOWN</div>
         <div id="status-indicators">
-            <span id="status-left">LEFT: OPEN</span>
-            <span id="status-generator">SYSTEMS: IDLE</span>
-            <span id="status-right">RIGHT: OPEN</span>
+            <span id="status-left">LEFT DOOR // OPEN</span>
+            <span id="status-generator">GENERATOR // IDLE</span>
+            <span id="status-right">RIGHT DOOR // OPEN</span>
         </div>
     </div>
 
     <div id="controls-legend">
-        <div class="legend-title">SYSTEM CONTROLS</div>
+        <div class="legend-title">[CONTROLS]</div>
         <div class="legend-item">
             <div class="mouse-icon-container">
                 <div class="mouse-graphic active-left"><div class="click-zone click-left"></div><div class="click-zone click-right"></div><div class="scroll-wheel"></div></div>
             </div>
-            <span class="legend-text">Toggle left corridor security gate</span>
+            <span class="legend-text">Left Click to toggle LEFT door</span>
         </div>
         <div class="legend-item">
             <div class="mouse-icon-container">
                 <div class="mouse-graphic active-right"><div class="click-zone click-right"></div><div class="click-zone click-right"></div><div class="scroll-wheel"></div></div>
             </div>
-            <span class="legend-text">Toggle right corridor security gate</span>
+            <span class="legend-text">Right Click to toggle RIGHT door</span>
         </div>
         <div class="legend-item">
             <div class="mouse-icon-container">
                 <div class="mouse-graphic active-middle"><div class="click-zone click-left"></div><div class="click-zone click-right"></div><div class="scroll-wheel"></div></div>
             </div>
-            <span class="legend-text">Hold down and Scroll wheel to face station and rewind Puppet Box</span>
+            <span class="legend-text">Hold Middle Click to look back & Scroll to wind music box</span>
         </div>
         <div class="legend-item">
             <div class="mouse-icon-container"><span class="keyboard-icon">SPACE</span></div>
-            <span class="legend-text">Hold down to recharge main battery station</span>
+            <span class="legend-text">Hold Spacebar to charge game power</span>
         </div>
         <div class="legend-item" id="hospital-controls" style="display:none;">
             <div class="mouse-icon-container"><span class="keyboard-icon">WASD</span></div>
-            <span class="legend-text">Navigate local environment grid boundaries</span>
+            <span class="legend-text">Use WASD keys to walk around the room</span>
         </div>
     </div>
 
-    <div id="hospital-hud">Something is wrong. Examine the console in the center of the doll nursery.</div>
+    <div id="hospital-hud">Anomalous break detected. Find the central terminal inside the room.</div>
 
     <div id="canvas-container"></div>
 
@@ -535,7 +581,7 @@
                     matrixCtx.beginPath(); matrixCtx.arc(14, -m.size/3, 8, 0, Math.PI*2); matrixCtx.fill();
                 }
                 matrixCtx.restore();
-                matrixCtx.shadowBlur = 0; 
+                matrixCtx.shadowBlur = 0; // Restore standard profile
             });
 
             // --- Render Cascade Streams ---
@@ -697,34 +743,34 @@
 
         function updatePuppetBoxTextureFace() {
             if (!puppetBoxContext) return;
-            puppetBoxContext.fillStyle = '#8a1c1c';
+            puppetBoxContext.fillStyle = '#000800';
             puppetBoxContext.fillRect(0, 0, 256, 256);
 
             if (!puppetBoxMechanicEnabled) {
-                puppetBoxContext.fillStyle = '#555555';
+                puppetBoxContext.fillStyle = '#225522';
                 puppetBoxContext.font = 'bold 16px Courier New';
                 puppetBoxContext.textAlign = 'center';
-                puppetBoxContext.fillText("SYSTEM OFFLINE", 128, 130);
+                puppetBoxContext.fillText("OFFLINE", 128, 130);
                 puppetBoxTexture.needsUpdate = true;
                 return;
             }
 
-            puppetBoxContext.fillStyle = '#ffffff';
-            puppetBoxContext.font = 'bold 18px Courier New';
+            puppetBoxContext.fillStyle = '#33ff33';
+            puppetBoxContext.font = 'bold 16px Courier New';
             puppetBoxContext.textAlign = 'center';
-            puppetBoxContext.fillText("PUPPET CHARGE", 128, 60);
+            puppetBoxContext.fillText("[MUSIC BOX]", 128, 60);
 
-            puppetBoxContext.fillStyle = '#1e0505';
-            puppetBoxContext.strokeStyle = puppetBoxLevel < 30 ? '#ff3333' : '#ff33aa';
-            puppetBoxContext.lineWidth = 4;
+            puppetBoxContext.fillStyle = '#001100';
+            puppetBoxContext.strokeStyle = puppetBoxLevel < 30 ? '#ff3333' : '#33ff33';
+            puppetBoxContext.lineWidth = 3;
             puppetBoxContext.fillRect(28, 110, 200, 45);
             puppetBoxContext.strokeRect(28, 110, 200, 45);
 
             let barWidth = (puppetBoxLevel / 100) * 192;
-            puppetBoxContext.fillStyle = puppetBoxLevel < 30 ? '#ff3333' : '#ff33aa';
+            puppetBoxContext.fillStyle = puppetBoxLevel < 30 ? '#ff3333' : '#33ff33';
             puppetBoxContext.fillRect(32, 114, barWidth, 37);
 
-            puppetBoxContext.fillStyle = '#ffffff';
+            puppetBoxContext.fillStyle = '#33ff33';
             puppetBoxContext.font = 'bold 20px Courier New';
             puppetBoxContext.fillText(Math.floor(puppetBoxLevel) + "%", 128, 205);
             puppetBoxTexture.needsUpdate = true;
@@ -760,7 +806,7 @@
             const body = new THREE.Mesh(new THREE.ConeGeometry(0.3, 1.2, 6), whiteMat); body.position.y = 0.6; angel.add(body);
             const head = new THREE.Mesh(new THREE.SphereGeometry(0.15, 6, 6), glowMat); head.position.y = 1.3; angel.add(head);
             
-            const halo = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.02, 4, 8), new THREE.MeshBasicMaterial({ color: 0xffffd700, transparent: true, opacity: 0.7 }));
+            const halo = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.02, 4, 8), new THREE.MeshBasicMaterial({ color: 0xffd700, transparent: true, opacity: 0.7 }));
             halo.position.set(0, 1.5, 0); halo.rotation.x = Math.PI / 2; angel.add(halo);
 
             const leftWingGroup = new THREE.Group(); leftWingGroup.position.set(0.15, 0.8, -0.05);
@@ -826,7 +872,7 @@
 
             const floor = new THREE.Mesh(new THREE.PlaneGeometry(6, 6), floorMaterial); floor.rotation.x = -Math.PI / 2; controlStationGroup.add(floor);
             const backWall = new THREE.Mesh(new THREE.PlaneGeometry(6, 4), texturedWallMat); backWall.position.set(0, 2, 3); backWall.rotation.y = Math.PI; controlStationGroup.add(backWall);
-            const frontWall = new THREE.Mesh(new THREE.PlaneGeometry(6, 4), texturedWallMat); frontWall.position.set(0, 2, -3); controlStationGroup.add(frontWall);
+            const frontWall = new THREE.Mesh(new THREE.PlaneGeometry(6, 4), texturedWallMat); frontWall.position.set(0, 2, -3); frontWall.rotation.y = 0; controlStationGroup.add(frontWall);
 
             const bedFrame = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.3, 2.0), new THREE.MeshStandardMaterial({ color: 0x2d221c, roughness: 0.9 }));
             bedFrame.position.set(0, 0.15, -1.8); controlStationGroup.add(bedFrame);
@@ -849,14 +895,14 @@
             }
 
             const puppetBox = new THREE.Group(); puppetBox.position.set(0, 1.1, 0); 
-            const redMatDefault = new THREE.MeshStandardMaterial({ color: 0x8a1c1c, metalness: 0.2, roughness: 0.6 });
+            const redMatDefault = new THREE.MeshStandardMaterial({ color: 0x000e00, metalness: 0.2, roughness: 0.6 });
             const dynamicFrontMat = new THREE.MeshStandardMaterial({ map: puppetBoxTexture, roughness: 0.5 });
             const boxMaterials = [ redMatDefault, redMatDefault, redMatDefault, redMatDefault, redMatDefault, dynamicFrontMat ];
 
             const boxHousing = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.7, 0.5), boxMaterials); puppetBox.add(boxHousing);
 
             puppetBoxWheel = new THREE.Group(); puppetBoxWheel.position.set(0.31, 0, 0); puppetBoxWheel.rotation.y = Math.PI / 2; 
-            const wheelRim = new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.02, 6, 16), new THREE.MeshStandardMaterial({ color: 0xffffd700, roughness: 0.4 })); puppetBoxWheel.add(wheelRim);
+            const wheelRim = new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.02, 6, 16), new THREE.MeshStandardMaterial({ color: 0x22aa22, roughness: 0.4 })); puppetBoxWheel.add(wheelRim);
             const spokeX = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.02, 0.02), new THREE.MeshStandardMaterial({ color: 0x111 }));
             const spokeY = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.26, 0.02), new THREE.MeshStandardMaterial({ color: 0x111 })); puppetBoxWheel.add(spokeX, spokeY);
 
@@ -988,7 +1034,7 @@
                 timeRemainingSeconds--;
                 
                 let minutes = Math.floor(timeRemainingSeconds / 60); let seconds = timeRemainingSeconds % 60;
-                document.getElementById('countdown-timer').innerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                document.getElementById('countdown-timer').innerText = `TIME: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
                 
                 if (minutes === 4 && seconds === 30 && !controlsAlreadyFadedOut) {
                     controlsAlreadyFadedOut = true;
@@ -1046,19 +1092,19 @@
                     const heartEl = document.getElementById('revival-heart');
                     heartEl.classList.remove('shake'); void heartEl.offsetWidth; heartEl.classList.add('shake');
 
-                    document.getElementById('revival-bg-overlay').style.backgroundColor = "rgba(100, 255, 150, 0.4)";
-                    setTimeout(() => { if(revivalActive) document.getElementById('revival-bg-overlay').style.backgroundColor = "rgba(20, 10, 25, 0.6)"; }, 60);
-                    document.getElementById('revival-counter').innerText = `SYNCHRONIZATIONS REQ: ${revivalClicks} / 7`;
+                    document.getElementById('revival-bg-overlay').style.backgroundColor = "rgba(51, 255, 51, 0.2)";
+                    setTimeout(() => { if(revivalActive) document.getElementById('revival-bg-overlay').style.backgroundColor = "rgba(0, 15, 0, 0.7)"; }, 60);
+                    document.getElementById('revival-counter').innerText = `HITS: ${revivalClicks} / 7`;
                     
                     if (revivalClicks >= 7) { executeWakeUpSequence(); }
                 } else {
-                    revivalStrikes++; document.getElementById('revival-strikes').innerText = `STRIKES: ${revivalStrikes} / ${maxRevivalStrikes}`;
-                    playTone(60, 0.3, 'sawtooth', 0.4); document.getElementById('revival-bg-overlay').style.backgroundColor = "rgba(255, 50, 50, 0.5)";
-                    setTimeout(() => { if (revivalActive) document.getElementById('revival-bg-overlay').style.backgroundColor = "rgba(20, 10, 25, 0.6)"; }, 60);
+                    revivalStrikes++; document.getElementById('revival-strikes').innerText = `MISSES: ${revivalStrikes} / ${maxRevivalStrikes}`;
+                    playTone(60, 0.3, 'sawtooth', 0.4); document.getElementById('revival-bg-overlay').style.backgroundColor = "rgba(255, 50, 50, 0.3)";
+                    setTimeout(() => { if (revivalActive) document.getElementById('revival-bg-overlay').style.backgroundColor = "rgba(0, 15, 0, 0.7)"; }, 60);
                     
                     if (revivalStrikes >= maxRevivalStrikes) {
                         revivalActive = false; document.getElementById('revival-ui').style.display = "none"; document.getElementById('revival-bg-overlay').style.display = "none";
-                        triggerGameOverTab("Your organic neural rhythm completely desynchronized under stress.");
+                        triggerGameOverTab("Organic brain interface fully crashed due to rhythm misalignment.");
                     }
                 }
                 return;
@@ -1070,7 +1116,7 @@
                 if (e.code === 'Space') {
                     if (!spacePressed && lookBehindProgress === 0 && !middleMousePressed) {
                         spacePressed = true;
-                        document.getElementById('status-generator').innerText = "CRANKING BATTERY"; document.getElementById('status-generator').className = "gen-status";
+                        document.getElementById('status-generator').innerText = "GENERATOR // CHARGING"; document.getElementById('status-generator').className = "gen-status";
                         if (audioObjects.boxSqueak && powerLevel > 0) audioObjects.boxSqueak.play().catch(e => {});
                     }
                 }
@@ -1084,7 +1130,7 @@
             } else {
                 if (e.code === 'Space') {
                     if (spacePressed) {
-                        spacePressed = false; document.getElementById('status-generator').innerText = "SYSTEMS: IDLE"; document.getElementById('status-generator').className = "";
+                        spacePressed = false; document.getElementById('status-generator').innerText = "GENERATOR // IDLE"; document.getElementById('status-generator').className = "";
                         if (audioObjects.boxSqueak) audioObjects.boxSqueak.pause();
                     }
                 }
@@ -1096,14 +1142,14 @@
             
             if (e.button === 0 && !middleMousePressed && lookBehindProgress === 0) {
                 if (powerLevel > 0) {
-                    leftDoorClosed = !leftDoorClosed; document.getElementById('status-left').innerText = leftDoorClosed ? "LEFT: CLOSED" : "LEFT: OPEN";
+                    leftDoorClosed = !leftDoorClosed; document.getElementById('status-left').innerText = leftDoorClosed ? "LEFT DOOR // CLOSED" : "LEFT DOOR // OPEN";
                     document.getElementById('status-left').className = leftDoorClosed ? "active-status" : ""; 
                     if (!triggerCustomPlay('door')) { playTone(leftDoorClosed ? 180 : 280, 0.25, 'triangle'); }
                 }
             } 
             else if (e.button === 2 && !middleMousePressed && lookBehindProgress === 0) {
                 if (powerLevel > 0) {
-                    rightDoorClosed = !rightDoorClosed; document.getElementById('status-right').innerText = rightDoorClosed ? "RIGHT: CLOSED" : "RIGHT: OPEN";
+                    rightDoorClosed = !rightDoorClosed; document.getElementById('status-right').innerText = rightDoorClosed ? "RIGHT DOOR // CLOSED" : "RIGHT DOOR // OPEN";
                     document.getElementById('status-right').className = rightDoorClosed ? "active-status" : ""; 
                     if (!triggerCustomPlay('door')) { playTone(rightDoorClosed ? 180 : 280, 0.25, 'triangle'); }
                 }
@@ -1112,7 +1158,7 @@
                 e.preventDefault();
                 if (!spacePressed && puppetBoxMechanicEnabled) {
                     middleMousePressed = true; lookBehindDirection = 1; 
-                    document.getElementById('status-generator').innerText = "TURNING AROUND..."; document.getElementById('status-generator').className = "gen-status";
+                    document.getElementById('status-generator').innerText = "GENERATOR // LOOKING BACK"; document.getElementById('status-generator').className = "gen-status";
                 }
             }
         });
@@ -1121,7 +1167,7 @@
             if (e.button === 1) { 
                 if (middleMousePressed) {
                     middleMousePressed = false; lookBehindDirection = -1;
-                    document.getElementById('status-generator').innerText = "TURNING AROUND..."; document.getElementById('status-generator').className = "gen-status";
+                    document.getElementById('status-generator').innerText = "GENERATOR // LOOKING BACK"; document.getElementById('status-generator').className = "gen-status";
                     if (audioObjects.boxSqueak) audioObjects.boxSqueak.pause();
                 }
             }
@@ -1292,11 +1338,11 @@
 
                 if (lookBehindDirection === 1) {
                     lookBehindProgress = Math.min(1.0, lookBehindProgress + 0.07); 
-                    if (lookBehindProgress >= 1.0) { document.getElementById('status-generator').innerText = "SCROLL MOUSE WHEEL TO CHARGE"; }
+                    if (lookBehindProgress >= 1.0) { document.getElementById('status-generator').innerText = "GENERATOR // WINDING"; }
                 } else if (lookBehindDirection === -1) {
                     lookBehindProgress = Math.max(0.0, lookBehindProgress - 0.07);
                     if (lookBehindProgress <= 0.0) {
-                        lookBehindDirection = 0; document.getElementById('status-generator').innerText = "SYSTEMS: IDLE"; document.getElementById('status-generator').className = "";
+                        lookBehindDirection = 0; document.getElementById('status-generator').innerText = "GENERATOR // IDLE"; document.getElementById('status-generator').className = "";
                     }
                 }
 
@@ -1317,7 +1363,7 @@
 
                 mouseScrolledThisFrame = false;
                 document.getElementById('power-bar').style.width = `${powerLevel}%`;
-                document.getElementById('power-label').innerText = `AUXILIARY POWER: ${Math.floor(powerLevel)}%`;
+                document.getElementById('power-label').innerText = `POWER SUPPLY: ${Math.floor(powerLevel)}%`;
 
                 if (puppetBoxLevel <= 0 && puppetBoxMechanicEnabled) {
                     puppetBoxDeadheadTriggered = true; spacePressed = false; middleMousePressed = false;
@@ -1330,7 +1376,7 @@
 
                 if (powerLevel <= 0) {
                     leftDoorClosed = false; rightDoorClosed = false;
-                    document.getElementById('status-left').innerText = "LEFT: DEAD"; document.getElementById('status-right').innerText = "RIGHT: DEAD";
+                    document.getElementById('status-left').innerText = "LEFT DOOR // DEAD"; document.getElementById('status-right').innerText = "RIGHT DOOR // DEAD";
                     roomLight.intensity = 0; flashlightLight.intensity = 0; globalAmbientLight.color.setHex(0x050505);
                 } else { if (!flashlightModeEnabled) { roomLight.intensity = THREE.MathUtils.lerp(roomLight.intensity, 1.8, 0.1); } }
 
@@ -1410,8 +1456,8 @@
             controlStationGroup.position.set(0, -100, 0); angelGroup.position.set(0, 0, 0);
             camera.position.set(0, 2, 4); camera.lookAt(0, 2, -5);
 
-            document.getElementById('revival-counter').innerText = `SYNCHRONIZATIONS REQ: 0 / 7`;
-            document.getElementById('revival-strikes').innerText = `STRIKES: 0 / ${maxRevivalStrikes}`;
+            document.getElementById('revival-counter').innerText = `HITS: 0 / 7`;
+            document.getElementById('revival-strikes').innerText = `MISSES: 0 / ${maxRevivalStrikes}`;
             document.getElementById('revival-bg-overlay').style.display = "block";
             document.getElementById('revival-ui').style.display = "flex";
         }
@@ -1443,9 +1489,9 @@
             document.getElementById('puppet-warning-hud').style.display = 'none'; document.exitPointerLock();
             document.getElementById('controls-legend').style.display = 'none';
 
-            document.getElementById('death-reason').innerText = customReason || window.cachedDeathReason || "Puppet matrix security failure.";
+            document.getElementById('death-reason').innerText = customReason || window.cachedDeathReason || "Game Over.";
             const diagnosticArea = document.getElementById('synthesis-diagnostic');
-            diagnosticArea.innerHTML = `<strong>[PERIMETER OPERATION GUIDE]</strong><br><br>• Hold <strong>Spacebar</strong> while looking forward to regenerate Auxiliary Power.<br>• Hold down the <strong>Middle Mouse Button</strong> to look behind you, then **Scroll your Mouse Wheel** to rewind the Puppet Box.<br>• Keep both metrics loaded while monitoring side doors for threats!`;
+            diagnosticArea.innerHTML = `<strong>[TIPS]</strong><br><br>• Hold down <strong>Spacebar</strong> to charge your main power supply.<br>• Hold down the <strong>Middle Mouse Button</strong> to look backwards, then **Scroll your Mouse Wheel** to wind up the music box.<br>• Close the left and right doors to block approaching targets before they breach your station!`;
             document.getElementById('game-over-screen').style.display = 'flex'; isPaused = true;
         }
 
@@ -1473,15 +1519,15 @@
             
             camera.position.set(0, 1.6, 0); camera.rotation.set(0, 0, 0);
             powerLevel = 100.0; puppetBoxLevel = 100.0; timeRemainingSeconds = 300; 
-            document.getElementById('countdown-timer').innerText = "05:00";
+            document.getElementById('countdown-timer').innerText = "TIME: 05:00";
             
             leftDoorClosed = false; rightDoorClosed = false; spacePressed = false; middleMousePressed = false; isPaused = true; cutsceneActive = false; hospitalModeActive = false; jumpscareActive = false; revivalActive = false;
             puppetBoxDeadheadTriggered = false; cutsceneElapsedTime = 0; yaw = 0; pitch = 0; lookBehindProgress = 0; lookBehindDirection = 0;
             keys.w = false; keys.a = false; keys.s = false; keys.d = false; revivalStrikes = 0;
 
-            document.getElementById('status-left').innerText = "LEFT: OPEN"; document.getElementById('status-left').className = "";
-            document.getElementById('status-right').innerText = "RIGHT: OPEN"; document.getElementById('status-right').className = "";
-            document.getElementById('status-generator').innerText = "SYSTEMS: IDLE"; document.getElementById('status-generator').className = "";
+            document.getElementById('status-left').innerText = "LEFT DOOR // OPEN"; document.getElementById('status-left').className = "";
+            document.getElementById('status-right').innerText = "RIGHT DOOR // OPEN"; document.getElementById('status-right').className = "";
+            document.getElementById('status-generator').innerText = "GENERATOR // IDLE"; document.getElementById('status-generator').className = "";
 
             updatePuppetBoxTextureFace();
             document.getElementById('main-menu').style.display = 'block';
