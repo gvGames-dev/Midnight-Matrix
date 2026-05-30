@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> MATRIX MIDNIGHT </title>
+    <title>3D SYSTEM OVERLOAD: THE CO-GENERATOR MATRIX</title>
     <style>
         body, html {
             margin: 0;
@@ -11,7 +11,7 @@
             overflow: hidden;
             width: 100%;
             height: 100%;
-            background-color: #000 !important;
+            background-color: #000000 !important;
             font-family: 'Courier New', Courier, monospace;
             user-select: none;
         }
@@ -25,7 +25,7 @@
             z-index: 1;
         }
 
-        /* --- FORCED MATRIX BACKGROUND CANVAS --- */
+        /* --- FORCED MATRIX BACKGROUND CANVAS LAYER --- */
         #menu-matrix-canvas {
             position: absolute;
             top: 0;
@@ -37,19 +37,19 @@
             background: #000000;
         }
 
-        /* --- UI Menu Panels --- */
+        /* --- UI Menu Panels Layer --- */
         .menu-panel {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            color: #fff;
+            color: #ffffff;
             text-align: center;
-            background: rgba(3, 10, 3, 0.9) !important;
+            background: rgba(3, 10, 3, 0.93) !important;
             padding: 30px;
             border: 2px solid #33ff33;
             z-index: 20;
-            box-shadow: 0 0 40px rgba(0, 255, 0, 0.25);
+            box-shadow: 0 0 40px rgba(0, 255, 0, 0.3);
             width: 480px;
             max-height: 90vh;
             overflow-y: auto;
@@ -535,7 +535,7 @@
                     matrixCtx.beginPath(); matrixCtx.arc(14, -m.size/3, 8, 0, Math.PI*2); matrixCtx.fill();
                 }
                 matrixCtx.restore();
-                matrixCtx.shadowBlur = 0; // Restore standard profile
+                matrixCtx.shadowBlur = 0; 
             });
 
             // --- Render Cascade Streams ---
@@ -760,7 +760,7 @@
             const body = new THREE.Mesh(new THREE.ConeGeometry(0.3, 1.2, 6), whiteMat); body.position.y = 0.6; angel.add(body);
             const head = new THREE.Mesh(new THREE.SphereGeometry(0.15, 6, 6), glowMat); head.position.y = 1.3; angel.add(head);
             
-            const halo = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.02, 4, 8), new THREE.MeshBasicMaterial({ color: 0xffd700, transparent: true, opacity: 0.7 }));
+            const halo = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.02, 4, 8), new THREE.MeshBasicMaterial({ color: 0xffffd700, transparent: true, opacity: 0.7 }));
             halo.position.set(0, 1.5, 0); halo.rotation.x = Math.PI / 2; angel.add(halo);
 
             const leftWingGroup = new THREE.Group(); leftWingGroup.position.set(0.15, 0.8, -0.05);
@@ -856,7 +856,7 @@
             const boxHousing = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.7, 0.5), boxMaterials); puppetBox.add(boxHousing);
 
             puppetBoxWheel = new THREE.Group(); puppetBoxWheel.position.set(0.31, 0, 0); puppetBoxWheel.rotation.y = Math.PI / 2; 
-            const wheelRim = new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.02, 6, 16), new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.4 })); puppetBoxWheel.add(wheelRim);
+            const wheelRim = new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.02, 6, 16), new THREE.MeshStandardMaterial({ color: 0xffffd700, roughness: 0.4 })); puppetBoxWheel.add(wheelRim);
             const spokeX = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.02, 0.02), new THREE.MeshStandardMaterial({ color: 0x111 }));
             const spokeY = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.26, 0.02), new THREE.MeshStandardMaterial({ color: 0x111 })); puppetBoxWheel.add(spokeX, spokeY);
 
